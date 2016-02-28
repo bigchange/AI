@@ -1,13 +1,13 @@
-package mllib
+package movielensALS
 
 import java.io.File
+
+import org.apache.log4j.{Logger, Level}
+import org.apache.spark.mllib.recommendation.{Rating, ALS, MatrixFactorizationModel}
+import org.apache.spark.rdd.RDD
+import org.apache.spark.{SparkContext, SparkConf}
+
 import scala.io.Source
-import org.apache.log4j.{Level, Logger}
-import org.apache.spark.SparkConf
-import org.apache.spark.SparkContext
-import org.apache.spark.SparkContext._
-import org.apache.spark.rdd._
-import org.apache.spark.mllib.recommendation.{ALS, Rating, MatrixFactorizationModel}
 // 协同过滤（推荐系统）
 // ALS 模型：交叉最小二乘法
 object MovieLensALS {
