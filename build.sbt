@@ -19,6 +19,8 @@ libraryDependencies += "org.apache.spark" % "spark-core_2.10" % "1.5.2" % "provi
 
 libraryDependencies += "org.apache.spark" % "spark-mllib_2.10" % "1.5.2"
 
+libraryDependencies += "org.apache.spark" % "spark-sql_2.10" % "1.5.2"
+
 libraryDependencies += "org.scalactic" %% "scalactic" % "2.2.5"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5" % "test"

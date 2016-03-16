@@ -1,4 +1,4 @@
-package movielensALS
+package scala.ml
 
 import java.io.File
 
