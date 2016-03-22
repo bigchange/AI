@@ -25,10 +25,11 @@ object MovieLensALS {
 
     //设置运行环境
     val conf = new SparkConf().setAppName("MovieLensALS")
+      .setMaster("local")
     val sc = new SparkContext(conf)
 
     //装载用户评分，该评分由评分器生成
-    val myRatings = loadRatings(args(1))
+    val myRatings = loadRatings(args(0)+"/personalratings.dat")
     val myRatingsRDD = sc.parallelize(myRatings, 1)
 
 
@@ -36,13 +37,13 @@ object MovieLensALS {
     val movieLensHomeDir = args(0)
 
     //装载样本评分数据，其中最后一列Timestamp取除10的余数作为key，Rating为值,即(Int,Rating)
-    val ratings = sc.textFile(new File(movieLensHomeDir, "ratings.dat").toString).map { line =>
+    val ratings = sc.textFile(args(0)+"/ratings.dat").map { line =>
       val fields = line.split("::")
       (fields(3).toLong % 10, Rating(fields(0).toInt, fields(1).toInt, fields(2).toDouble))
     }
 
     //装载电影目录对照表（电影ID -> 电影标题）
-    val movies = sc.textFile(new File(movieLensHomeDir, "movies.dat").toString).map { line =>
+    val movies = sc.textFile(args(0)+"/movies.dat").map { line =>
       val fields = line.split("::")
       (fields(0).toInt, fields(1))
     }.collect().toMap
@@ -50,7 +51,7 @@ object MovieLensALS {
     val numRatings = ratings.count()
     val numUsers = ratings.map(_._2.user).distinct().count()
     val numMovies = ratings.map(_._2.product).distinct().count()
-
+    // Got 10000054 ratings from 69878 users on 10677 movies.
     println("Got " + numRatings + " ratings from " + numUsers + " users on " + numMovies + " movies.")
 
     //将样本评分表以key值切分成3个部分，分别用于训练 (60%，并加入用户评分), 校验 (20%), and 测试 (20%)（6:2:2）
@@ -73,7 +74,7 @@ object MovieLensALS {
     val numTraining = training.count()
     val numValidation = validation.count()
     val numTest = test.count()
-
+    // Training: 16002527, validation: 1999675, test: 1997906
     println("Training: " + numTraining + ", validation: " + numValidation + ", test: " + numTest)
 
 
@@ -91,6 +92,19 @@ object MovieLensALS {
       val validationRmse = computeRmse(model, validation, numValidation)
       println("RMSE (validation) = " + validationRmse + " for the model trained with rank = "
         + rank + ", lambda = " + lambda + ", and numIter = " + numIter + ".")
+
+      /* RMSE (validation) = 0.8020619758188713 for the model trained with rank = 8, lambda = 0.1, and numIter = 10.
+       RMSE (validation) = 0.7974995222123513 for the model trained with rank = 8, lambda = 0.1, and numIter = 20.
+       RMSE (validation) = 3.6696552508471094 for the model trained with rank = 8, lambda = 10.0, and numIter = 10.
+       RMSE (validation) = 3.6696552508471094 for the model trained with rank = 8, lambda = 10.0, and numIter = 20.
+       RMSE (validation) = 0.7981921184268205 for the model trained with rank = 12, lambda = 0.1, and numIter = 10.
+       RMSE (validation) = 0.792021981230906 for the model trained with rank = 12, lambda = 0.1, and numIter = 20.
+       RMSE (validation) = 3.6696552508471094 for the model trained with rank = 12, lambda = 10.0, and numIter = 10
+       RMSE (validation) = 3.6696552508471094 for the model trained with rank = 12, lambda = 10.0, and numIter = 20.
+       The best model was trained with rank = 12 and lambda = 0.1, and numIter = 20, and its RMSE on the test set is 0.7920916479200906.
+       The best model improves the baseline by 25.26%.*/
+
+
       if (validationRmse < bestValidationRmse) {
         bestModel = Some(model)
         bestValidationRmse = validationRmse
@@ -99,6 +113,8 @@ object MovieLensALS {
         bestNumIter = numIter
       }
     }
+    // 保存最佳训练的模型
+    // bestModel.get.save(sc,args(0)+"/ALSModel")
 
     //用最佳模型预测测试集的评分，并计算和实际评分之间的均方根误差
     val testRmse = computeRmse(bestModel.get, test, numTest)
@@ -107,7 +123,6 @@ object MovieLensALS {
       + ", and numIter = " + bestNumIter + ", and its RMSE on the test set is " + testRmse + ".")
 
     // create a naive baseline and compare it with the best model
-    //
     val meanRating = training.union(validation).map(_.rating).mean
     val baselineRmse =
       math.sqrt(test.map(x => (meanRating - x.rating) * (meanRating - x.rating)).mean)
@@ -134,7 +149,7 @@ object MovieLensALS {
     sc.stop()
   }
 
-  /** 校验集预测数据和实际数据之间的均方根误差 **/
+  /** 校验 集预测数据和 实际数据之间的均方根误差 **/
   def computeRmse(model: MatrixFactorizationModel, data: RDD[Rating], n: Long): Double = {
     val predictions: RDD[Rating] = model.predict(data.map(x => (x.user, x.product)))
     val predictionsAndRatings = predictions.map(x => ((x.user, x.product), x.rating))

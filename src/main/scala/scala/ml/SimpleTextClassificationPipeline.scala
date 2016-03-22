@@ -19,9 +19,11 @@ import scala.ml.LabeledDocument
   * Created by C.J.YOU on 2016/3/16.
   */
 case class LabeledDocument(id:Long,text:String,label:Double)
+
 case class Document(id:Long,text:String)
 
 object SimpleTextClassificationPipeline {
+
 
   def main(args: Array[String]) {
     val conf = new SparkConf().setAppName("STCP").setMaster("local")
@@ -60,18 +62,18 @@ object SimpleTextClassificationPipeline {
     val model = pipeline.fit(trainnig.toDF())
 
     // 读入分词后的文本数据
-    val  iks = new IKSegmentation(Source.fromFile(new File(args(0))).bufferedReader(),true)
+    /*val  iks = new IKSegmentation(Source.fromFile(new File(args(0))).bufferedReader(),true)
     var lexeme = iks.next()
     val words  = new ListBuffer[String]
     while(lexeme != null){
       words.+=(lexeme.getLexemeText)
       lexeme = iks.next()
-    }
+    }*/
     // println(words.mkString(" "))
 
     // Prepare test documents, which are unlabeled.
     val test = sc.parallelize(Seq(
-      Document(4L, words.mkString(" ")),
+      // Document(4L, words.mkString(" ")),
       Document(5L, "这种分类 层次"),
       Document(6L, "spark hadoop spark"),
       Document(7L, "这种分类")))

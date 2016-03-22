@@ -12,7 +12,9 @@ object Test {
 
   val sc = new SparkContext(sparkConf)
   def main(args: Array[String]) {
-    val file = sc.textFile(args(0))
+    val re = ""
+    if(re.isEmpty)
+      println("empty")
 
   }
 }
