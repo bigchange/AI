@@ -1,13 +1,16 @@
 package scala.util
 
+import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HColumnDescriptor, HTableDescriptor, TableName, HBaseConfiguration}
-import org.apache.hadoop.hbase.client.{Table, Get, ConnectionFactory, Connection}
+import org.apache.hadoop.hbase.client._
 
 
 /**
   * Created by C.J.YOU on 2016/3/21.
   */
 object HBaseUtil {
+
+  case class RowTelecomData(row:String, value:String)
 
   /**
     * 获取hbase的连接器
@@ -80,12 +83,7 @@ object HBaseUtil {
        return  false
     }
     val put = new Put(Bytes.toBytes(data.row))
-    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("ts"), Bytes.toBytes(data.ts))
-    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("ad"), Bytes.toBytes(data.ad))
-    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("ua"), Bytes.toBytes(data.ua))
-    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("url"), Bytes.toBytes(data.url))
-    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("ref"), Bytes.toBytes(data.ref))
-    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("cookie"), Bytes.toBytes(data.cookie))
+    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("ts"), Bytes.toBytes(data.value))
     table.put(put)
     true
   }
