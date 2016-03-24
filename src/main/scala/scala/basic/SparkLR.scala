@@ -41,24 +41,28 @@ object SparkLR {
   val ITERATIONS = 5
   val rand = new Random(42)
 
+  // 定义操作的对象，如同：LabelPoint 的形式方便模型的处理
   case class DataPoint(x: Vector[Double], y: Double)
 
   def generateData: Array[DataPoint] = {
+    //  生成 单个 dataPoint
     def generatePoint(i: Int): DataPoint = {
       val y = if (i % 2 == 0) -1 else 1
-      val x = DenseVector.fill(D){rand.nextGaussian + y * R}
+      val x = DenseVector.fill(D){ rand.nextGaussian + y * R}
       DataPoint(x, y)
     }
+    // 多个dataPoint
     Array.tabulate(N)(generatePoint)
   }
 
   def showWarning() {
+
     System.err.println(
       """WARN: This is a naive implementation of Logistic Regression and is given as an example!
         |Please use either org.apache.spark.mllib.classification.LogisticRegressionWithSGD or
         |org.apache.spark.mllib.classification.LogisticRegressionWithLBFGS
         |for more conventional use.
-      """.stripMargin)
+      """.stripMargin(':'))
   }
 
   def main(args: Array[String]) {
@@ -71,13 +75,15 @@ object SparkLR {
     val points = sc.parallelize(generateData, numSlices).cache()
 
     // Initialize w to a random value
-    var w = DenseVector.fill(D){2 * rand.nextDouble - 1}
+    var w = DenseVector.fill(D){ 2 * rand.nextDouble - 1}
     println("Initial w: " + w)
 
+
     for (i <- 1 to ITERATIONS) {
+
       println("On iteration " + i)
       val gradient = points.map { p =>
-        p.x * (1 / (1 + exp(-p.y * (w.dot(p.x)))) - 1) * p.y
+        p.x * (1 / (1 + exp( -p.y * (w.dot(p.x)))) - 1) * p.y
       }.reduce(_ + _)
       w -= gradient
     }
