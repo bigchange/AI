@@ -15,14 +15,22 @@ libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "2.7.1"
 
 libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.4"
 
+<<<<<<< HEAD
+libraryDependencies += "org.apache.hbase" % "hbase-server" % "1.1.2"
+
+=======
+>>>>>>> master
 libraryDependencies += "org.apache.hbase" % "hbase-client" % "1.1.2"
 
 libraryDependencies += "org.apache.hbase" % "hbase-common" % "1.1.2"
 
+<<<<<<< HEAD
+=======
 libraryDependencies += "org.apache.hbase" % "hbase-server" % "1.1.2"
 
 libraryDependencies += "org.apache.hbase" % "hbase-it" % "1.1.2"
 
+>>>>>>> master
 libraryDependencies += "org.apache.spark" % "spark-core_2.10" % "1.5.2" % "provided"
 
 libraryDependencies += "org.apache.spark" % "spark-mllib_2.10" % "1.5.2"
@@ -34,6 +42,8 @@ libraryDependencies += "redis.clients" % "jedis" % "2.8.0"
 libraryDependencies += "com.ning" % "async-http-client" % "1.7.16"
 
 libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.10" % "0.11.0"
+
+libraryDependencies += "org.json" % "json" % "20140107"
 
 libraryDependencies += "org.scalactic" %% "scalactic" % "2.2.5"
 

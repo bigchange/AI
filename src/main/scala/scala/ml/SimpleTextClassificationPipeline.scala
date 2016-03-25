@@ -1,29 +1,22 @@
 package scala.ml
 
-import java.io.File
-
 import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.LogisticRegression
 import org.apache.spark.ml.feature.{HashingTF, Tokenizer}
 import org.apache.spark.sql.{Row, SQLContext}
 import org.apache.spark.mllib.linalg.Vector
 import org.apache.spark.{SparkContext, SparkConf}
-import org.wltea.analyzer.{Lexeme, IKSegmentation}
 
-import scala.collection.mutable.ListBuffer
-import scala.io.Source
-import scala.ml
-import scala.ml.LabeledDocument
 
 /**
   * Created by C.J.YOU on 2016/3/16.
   */
-case class LabeledDocument(id:Long,text:String,label:Double)
-
-case class Document(id:Long,text:String)
 
 object SimpleTextClassificationPipeline {
 
+  case class LabeledDocument(id:Long,text:String,label:Double)
+
+  case class Document(id:Long,text:String)
 
   def main(args: Array[String]) {
     val conf = new SparkConf().setAppName("STCP").setMaster("local")
