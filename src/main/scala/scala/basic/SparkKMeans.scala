@@ -21,7 +21,7 @@ package scala.basic
 import breeze.linalg.{Vector, DenseVector, squaredDistance}
 
 import org.apache.spark.{SparkConf, SparkContext}
-import org.apache.spark.SparkContext._
+
 
 /**
  * K-means clustering.
@@ -36,10 +36,12 @@ object SparkKMeans {
   }
 
   def closestPoint(p: Vector[Double], centers: Array[Vector[Double]]): Int = {
+
     var bestIndex = 0
     var closest = Double.PositiveInfinity
 
-    for (i <- 0 until centers.length) {
+    for (i <- centers.indices) {
+      // 最近距离计算
       val tempDist = squaredDistance(p, centers(i))
       if (tempDist < closest) {
         closest = tempDist
@@ -67,14 +69,15 @@ object SparkKMeans {
 
     showWarning()
 
-    val sparkConf = new SparkConf().setAppName("SparkKMeans")
+    val sparkConf = new SparkConf().setAppName("SparkKMeans").setMaster("local")
     val sc = new SparkContext(sparkConf)
     val lines = sc.textFile(args(0))
-    val data = lines.map(parseVector _).cache()
+    val data = lines.map(parseVector).cache()
+    // inital K 值
     val K = args(1).toInt
     val convergeDist = args(2).toDouble
 
-    val kPoints = data.takeSample(withReplacement = false, K, 42).toArray
+    val kPoints = data.takeSample(withReplacement = false, K, 42)
     var tempDist = 1.0
 
     while(tempDist > convergeDist) {

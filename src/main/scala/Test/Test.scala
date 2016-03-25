@@ -13,9 +13,6 @@ object Test {
 
   val sc = new SparkContext(sparkConf)
   def main(args: Array[String]) {
-    val re = ""
-    if(re.isEmpty)
-      println("empty")
-
+    sc.wholeTextFiles("hdfs://server:9000/data/kafka").foreach(println)
   }
 }

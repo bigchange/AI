@@ -69,7 +69,7 @@ object SparkLR {
 
     showWarning()
 
-    val sparkConf = new SparkConf().setAppName("SparkLR")
+    val sparkConf = new SparkConf().setAppName("SparkLR").setMaster("local")
     val sc = new SparkContext(sparkConf)
     val numSlices = if (args.length > 0) args(0).toInt else 2
     val points = sc.parallelize(generateData, numSlices).cache()
@@ -77,6 +77,7 @@ object SparkLR {
     // Initialize w to a random value
     var w = DenseVector.fill(D){ 2 * rand.nextDouble - 1}
     println("Initial w: " + w)
+    // Initial w: DenseVector(-0.8066603352924779, -0.5488747509304204, -0.7351625370864459, 0.8228539509375878, -0.6662446067860872, -0.33245457898921527, 0.9664202269036932, -0.20407887461434115, 0.4120993933386614, -0.8125908063470539)
 
 
     for (i <- 1 to ITERATIONS) {
@@ -89,7 +90,7 @@ object SparkLR {
     }
 
     println("Final w: " + w)
-
+    // Final w: DenseVector(5816.075967498865, 5222.008066011391, 5754.751978607454, 3853.1772062206846, 5593.565827145932, 5282.387874201054, 3662.9216051953435, 4890.78210340607, 4223.371512250292, 5767.368579668863)
     sc.stop()
   }
 }
