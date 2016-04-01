@@ -25,6 +25,7 @@ object SparseNaiveBayes {
     // Cache examples because it will be used in both training and evaluation.
     examples.cache()
 
+    // 保留交叉验证
     val splits = examples.randomSplit(Array(0.8, 0.2))
     val training = splits(0)
     val test = splits(1)

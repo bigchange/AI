@@ -9,18 +9,18 @@ import java.io._
   */
 object FileUtil {
 
-  def isExist(path:String): Boolean ={
+  private def isExist(path:String): Boolean ={
     val file = new File(path)
     file.exists()
   }
   /** 创建目录 */
-  def mkDir(name: String): Unit = {
+   def mkDir(name: String): Unit = {
     val dir = new File(name)
     if(!isExist(name)){
       dir.mkdir
     }
   }
-  def createFile(path:String): Unit ={
+  private def createFile(path:String): Unit ={
     val file = new File(path)
     if(!isExist(path)){
       file.createNewFile()
