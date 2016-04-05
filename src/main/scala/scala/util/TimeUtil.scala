@@ -18,4 +18,8 @@ object TimeUtil {
     calendar.setTime(new Date)
     calendar.get(Calendar.HOUR_OF_DAY)
   }
+
+  def getTimeStamp:Long = {
+    System.currentTimeMillis()
+  }
 }

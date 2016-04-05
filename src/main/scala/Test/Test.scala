@@ -4,7 +4,8 @@ import org.apache.spark.{SparkContext, SparkConf}
 
 import scala.collection.mutable
 import scala.io.Source
-import scala.util.{StringUtil, FileUtil}
+import scala.telecom.DataAnalysis
+import scala.util.{TimeUtil, StringUtil, FileUtil}
 import scala.util.control.Breaks._
 
 /**
@@ -80,8 +81,13 @@ object Test {
     /*sc.parallelize((globalString + globalStringTwo).split(",")).filter(!_.isEmpty).filter(_.length >=3).foreach(x => string = string +","+x)
     FileUtil.writeToFile("H:\\SmartData-X\\smartuser\\SmartUser_Eni\\上海电信\\final_url_20161443",Array(string))*/
 
-    val res = StringUtil.index_op(globalStringOptimSplit + globalStringOptim,",weibo,",0)
-    println(res)
+   /* val res = StringUtil.index_op(globalStringOptimSplit + globalStringOptim,",weibo,",0)
+    println(res)*/
+
+
+    sc.textFile("F:\\datatest\\telecom\\16").map(DataAnalysis.analysis).filter(_!= null).zipWithIndex().foreach(record => println( TimeUtil.getDay + "_ky_"+ record._2 +","+record._1))
+
+
   }
 
   private def toJson2(arr: Array[String]): String = {

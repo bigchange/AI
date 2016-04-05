@@ -20,7 +20,7 @@ object FileUtil {
       dir.mkdir
     }
   }
-  private def createFile(path:String): Unit ={
+   def createFile(path:String): Unit ={
     val file = new File(path)
     if(!isExist(path)){
       file.createNewFile()

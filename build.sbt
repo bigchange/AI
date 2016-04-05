@@ -37,6 +37,10 @@ libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.10" % "0.11.
 
 libraryDependencies += "org.json" % "json" % "20140107"
 
+libraryDependencies += "org.apache.spark" % "spark-streaming_2.10" % "1.5.2"
+
+libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.5.2"
+
 libraryDependencies += "org.scalactic" %% "scalactic" % "2.2.5"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5" % "test"
