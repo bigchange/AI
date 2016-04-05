@@ -7,7 +7,7 @@ import javax.crypto.{SecretKeyFactory, Cipher}
 import javax.crypto.spec.DESKeySpec
 
 import org.json.JSONObject
-import sun.misc.BASE64Decoder
+import sun.misc.{BASE64Encoder, BASE64Decoder}
 
 /**
   * Created by C.J.YOU on 2016/3/17.
@@ -15,7 +15,7 @@ import sun.misc.BASE64Decoder
 object StringUtil {
 
   /**
-    * 使用gzip进行压缩
+    * 使用zlibZip进行压缩
     */
   private  def zlibZip(primStr:String):String = {
     if (primStr == null || primStr.length () == 0) {
@@ -42,7 +42,7 @@ object StringUtil {
 
   /**
     *
-    * <p>Description:使用gzip进行解压缩</p>
+    * <p>Description:使用zlibZip进行解压缩</p>
     */
   private def  zlibUnzip(compressedStr:String ):String ={
     if(compressedStr == null){
@@ -78,7 +78,20 @@ object StringUtil {
     new String(decoded,"utf-8")
   }
 
-  // 电信数据加码后对应的解码 方法
+  // 电信数据加码后对应的加码方法
+  private def desEncoder(input:String): String = {
+    val keySpec = new DESKeySpec ("kunyandata".getBytes ())
+    val keyFactory = SecretKeyFactory.getInstance ("des")
+    val secretKey = keyFactory.generateSecret (keySpec)
+    val plainText = input
+    val cipher = Cipher.getInstance ("des")
+    cipher.init (Cipher.ENCRYPT_MODE, secretKey, new SecureRandom ())
+    val cipherData = cipher.doFinal (plainText.getBytes ())
+    val cipherText = new BASE64Encoder().encode(cipherData)
+    cipherText
+  }
+
+  // 电信数据加码后对应的解码方法
   private def design(str:String): String ={
     val cipher = Cipher.getInstance ("des")
     val keySpec = new DESKeySpec ("kunyandata".getBytes ())
@@ -145,6 +158,63 @@ object StringUtil {
       }
     }
     decompressed
+  }
+
+  /*
+  KMP 字符匹配算法
+   */
+   def get_next(t:String,t_len:Int,next:Array[Int]):Unit = {
+    var i   = 0
+    var  j   = -1
+    next(0) = -1
+    while( i<t_len )
+    {
+      if(j == -1 || t(i) == t(j) )
+      {
+        i = i + 1
+        j = j + 1
+        if(i  < t_len)
+        {
+          if(t(i) != t(j))
+            next(i) = j
+          else
+            next(i) = next(j)
+        }
+      }
+      else
+        j = next(j)
+    }
+  }
+  def index_op(s:String,t:String,pos:Int) : Int = {
+    val s_len = s.length
+    val t_len = t.length
+
+    if( t_len > s_len )
+       return -1
+    var next = new Array[Int](t_len)
+    next = new Array[Int](t_len)
+    get_next(t,t_len,next)
+
+    /*开始匹配*/
+    var i = pos
+    var  j = 0
+    while(i < s_len && j < t_len )
+    {
+      if(j == -1 || s(i) == t(j) )
+      {
+        i = i + 1
+        j = j + 1
+      }
+      else
+      {
+        j = next(j)
+      }
+    }
+    /*返回结果*/
+    if( j == t_len )
+       i - t_len
+    else
+        -1
   }
 
   def main(args: Array[String]): Unit = {
