@@ -6,6 +6,7 @@ import java.util.zip.{GZIPInputStream, DeflaterOutputStream, InflaterOutputStrea
 import javax.crypto.{SecretKeyFactory, Cipher}
 import javax.crypto.spec.DESKeySpec
 
+import scala.log.SUELogger
 import org.json.JSONObject
 import sun.misc.{BASE64Encoder, BASE64Decoder}
 
@@ -107,18 +108,31 @@ object StringUtil {
     data
   }
 
-  def parseJsonObject(str:String): (String,String,String,String) ={
-    val json = getJsonObject(str)
-    val id = json.get("id").toString
-    val value = json.get("value").toString
-    val desDe = design(value)
-    println(desDe)
-    val resultJson = getJsonObject(desDe)
-    val url = resultJson.get("third").toString
-    val ref = resultJson.get("fourth").toString
-    val cookie  = resultJson.get("seventh").toString
-    println(s"url=$url, refer:$ref, cookie=$cookie")
-    (id,url,ref,cookie)
+  def parseJsonObject(str:String): String ={
+
+    var result = ""
+
+    try {
+      val res = decodeBase64 (str)
+
+      val json = getJsonObject (res)
+      val id = json.get ("id").toString
+      val value = json.get ("value").toString
+      val desDe = design (zlibUnzip (value))
+      println (desDe)
+      val resultJson = getJsonObject (desDe)
+      val ad = resultJson.get ("1").toString
+      val ts = resultJson.get ("2").toString
+      val hostAndUrl = resultJson.get ("34").toString
+      val ref = resultJson.get ("5").toString
+      val ua = resultJson.get ("8").toString
+      val cookie = resultJson.get ("9").toString
+      result = ts + "\t" + ad + "\t" + ua + "\t" + hostAndUrl + "\t" + ref + "\t" +cookie
+    } catch {
+      case e:Exception  =>
+        SUELogger.error("praseJsonObject ERROR")
+    }
+    result
   }
 
 
@@ -217,8 +231,5 @@ object StringUtil {
         -1
   }
 
-  def main(args: Array[String]): Unit = {
-
-  }
 
 }

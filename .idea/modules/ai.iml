@@ -50,7 +50,6 @@
     <orderEntry type="library" name="SBT: com.sun.jersey:jersey-server:1.9:jar" level="project" />
     <orderEntry type="library" name="SBT: com.sun.jersey.contribs:jersey-guice:1.9:jar" level="project" />
     <orderEntry type="library" name="SBT: com.sun.xml.bind:jaxb-core:2.2.7:jar" level="project" />
-    <orderEntry type="library" name="SBT: com.sun.xml.bind:jaxb-impl:2.2.7:jar" level="project" />
     <orderEntry type="library" name="SBT: com.sun.xml.fastinfoset:FastInfoset:1.2.12:jar" level="project" />
     <orderEntry type="library" name="SBT: com.thoughtworks.paranamer:paranamer:2.6:jar" level="project" />
     <orderEntry type="library" name="SBT: com.twitter:chill-java:0.5.0:jar" level="project" />
@@ -105,15 +104,10 @@
     <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-auth:2.7.1:jar" level="project" />
     <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-client:2.7.1:jar" level="project" />
     <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-common:2.7.1:jar" level="project" />
-    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-hdfs:2.7.1:jar" level="project" />
     <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-mapreduce-client-app:2.7.1:jar" level="project" />
-    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-mapreduce-client-common:2.7.1:jar" level="project" />
     <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-mapreduce-client-core:2.7.1:jar" level="project" />
     <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-mapreduce-client-jobclient:2.7.1:jar" level="project" />
     <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-mapreduce-client-shuffle:2.7.1:jar" level="project" />
-    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-yarn-api:2.7.1:jar" level="project" />
-    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-yarn-client:2.7.1:jar" level="project" />
-    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-yarn-common:2.7.1:jar" level="project" />
     <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-yarn-server-common:2.7.1:jar" level="project" />
     <orderEntry type="library" name="SBT: org.apache.htrace:htrace-core:3.1.0-incubating:jar" level="project" />
     <orderEntry type="library" name="SBT: org.apache.httpcomponents:httpclient:4.2.5:jar" level="project" />
@@ -156,10 +150,7 @@
     <orderEntry type="library" name="SBT: org.mortbay.jetty:jetty-util:6.1.26:jar" level="project" />
     <orderEntry type="library" name="SBT: org.objenesis:objenesis:1.2:jar" level="project" />
     <orderEntry type="library" name="SBT: org.roaringbitmap:RoaringBitmap:0.4.5:jar" level="project" />
-    <orderEntry type="library" scope="RUNTIME" name="SBT: org.scala-lang:scala-compiler:2.10.0:jar" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="SBT: org.scala-lang:scala-compiler:2.10.4:jar" level="project" />
-    <orderEntry type="library" name="SBT: org.scala-lang:scala-library:2.10.5:jar" level="project" />
-    <orderEntry type="library" name="SBT: org.scala-lang:scala-reflect:2.10.5:jar" level="project" />
     <orderEntry type="library" name="SBT: org.scala-lang:scalap:2.10.0:jar" level="project" />
     <orderEntry type="library" name="SBT: org.scalactic:scalactic_2.10:2.2.5:jar" level="project" />
     <orderEntry type="library" name="SBT: org.scalamacros:quasiquotes_2.10:2.0.0:jar" level="project" />
@@ -231,5 +222,20 @@
     <orderEntry type="library" name="SBT: org.json:json:20140107:jar" level="project" />
     <orderEntry type="library" name="SBT: javax.servlet:servlet-api:2.5:jar" level="project" />
     <orderEntry type="library" name="SBT: javax.servlet.jsp:jsp-api:2.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hbase:hbase-it:1.1.2:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.jboss.netty:netty:3.2.4.Final:jar" level="project" />
+    <orderEntry type="library" name="SBT: com.sun.xml.bind:jaxb-impl:2.2.7:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-hdfs:2.7.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-mapreduce-client-common:2.7.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-yarn-api:2.7.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-yarn-client:2.7.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.hadoop:hadoop-yarn-common:2.7.1:jar" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="SBT: org.scala-lang:scala-compiler:2.10.0:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.scala-lang:scala-reflect:2.10.5:jar" level="project" />
+    <orderEntry type="library" name="SBT: com.101tec:zkclient:0.3:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.kafka:kafka-clients:0.8.2.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.kafka:kafka_2.10:0.8.2.1:jar" level="project" />
+    <orderEntry type="library" name="SBT: org.apache.spark:spark-streaming-kafka_2.10:1.5.2:jar" level="project" />
+    <orderEntry type="library" name="scala-sdk-2.10.4" level="application" />
   </component>
 </module>
