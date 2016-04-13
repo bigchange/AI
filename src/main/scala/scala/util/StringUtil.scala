@@ -100,7 +100,8 @@ object StringUtil {
     val secretKey = keyFactory.generateSecret (keySpec)
     cipher.init(Cipher.DECRYPT_MODE, secretKey, new SecureRandom())
     val plainData = cipher.doFinal(new BASE64Decoder().decodeBuffer(str))
-    decodeBase64(new String(plainData))
+    // decodeBase64(new String(plainData))
+    new String(plainData)
   }
 
   private def getJsonObject(line:String): JSONObject = {
@@ -114,12 +115,10 @@ object StringUtil {
 
     try {
       val res = decodeBase64 (str)
-
-      val json = getJsonObject (res)
+      val json = getJsonObject(res)
       val id = json.get ("id").toString
       val value = json.get ("value").toString
       val desDe = design (zlibUnzip (value))
-      println (desDe)
       val resultJson = getJsonObject (desDe)
       val ad = resultJson.get ("1").toString
       val ts = resultJson.get ("2").toString
