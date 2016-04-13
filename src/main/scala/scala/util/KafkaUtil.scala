@@ -8,8 +8,6 @@ import org.apache.spark.{SparkContext, SparkConf}
 import scala.collection.mutable
 import scala.config.FileConfig
 import scala.log.SUELogger
-import scala.telecom.DataAnalysis
-
 
 /**
   * Created by C.J.YOU on 2016/4/5.
@@ -45,10 +43,15 @@ object KafkaUtil {
       .set("spark.driver.allowMultipleContexts","true")
       .set("spark.cleaner.ttl", "10000")
       .setMaster("local")
-    val sc = new SparkContext(sparkConf)
-    // 222.73.34.91:9092 test_telecom 222.73.34.91:2181
+
+     // val sc = new SparkContext(sparkConf)
+    // 外部参数参入
     val Array(brokers, topics, zkhosts) = args
+
     val ssc = new StreamingContext(sparkConf,Seconds(5))
+
+    // 可以通过 StreamingContext 来得到 SparkContext
+    val sc = ssc.sparkContext
 
     val text = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc,kafkaParams = Map[String,String]("metadata.broker.list" -> brokers,"group.id" -> "TelecomTest","zookeeper.connect" -> zkhosts,"serializer.class" -> "kafka.serializer.StringEncoder"),topics = topics.split(",").toSet)
     SUELogger.warn("write data")
@@ -58,7 +61,7 @@ object KafkaUtil {
     try {
       result.foreachRDD(rdd => {
 
-        rdd.map(DataAnalysis.analysis).filter(_!= null).zipWithIndex().foreach(record => println( TimeUtil.getDay + "_ky_"+ record._2 +","+record._1))
+        rdd.map(x  => x).filter(_!= null).zipWithIndex().foreach(record => println( TimeUtil.getDay + "_ky_"+ record._2 +","+record._1))
 
          /*val resArray = rdd.collect()
          val dir = FileConfig.test_dir + "/" + TimeUtil.getDay

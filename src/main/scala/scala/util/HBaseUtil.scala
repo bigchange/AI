@@ -5,7 +5,7 @@ import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HBaseConfiguration, HColumnDescriptor, HTableDescriptor, TableName}
 
 import scala.log.SUELogger
-import scala.telecom.classification.UrlType
+
 
 /**
   * Created by C.J.YOU on 2016/3/21.
@@ -104,10 +104,7 @@ object HBaseUtil {
 
   def saveData(arr:Array[String]): Unit ={
     for(item <- arr){
-      val urlType = UrlType.apply(item.split("\t")(3))
-      if(urlType.urlType.nonEmpty){
-        put("Raw_"+urlType.urlType,formatData(item))
-      }
+     ;
     }
   }
 
