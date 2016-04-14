@@ -41,6 +41,12 @@ libraryDependencies += "org.apache.spark" % "spark-streaming_2.10" % "1.5.2"
 
 libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.5.2"
 
+libraryDependencies += "org.clulab" % "processors_2.11" % "5.8.2"
+
+libraryDependencies += "org.clulab" % "processors_2.11" % "5.8.2" classifier "models"
+
+libraryDependencies += "edu.stanford.nlp" % "stanford-corenlp" % "3.6.0"
+
 libraryDependencies += "org.scalactic" %% "scalactic" % "2.2.5"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5" % "test"
