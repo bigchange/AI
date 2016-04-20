@@ -5,6 +5,6 @@ package scala.corenlp
   */
 object NLPProcessor {
 
-  val proc =
-
+  // val proc:Processor = new CoreNLPProcessor(withDiscourse = true)
+  // val doc = new Document("add your text here! It can contain multiple sentences.")
 }
