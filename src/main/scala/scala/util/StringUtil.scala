@@ -79,7 +79,7 @@ object StringUtil {
     new String(decoded,"utf-8")
   }
 
-  // 电信数据加码后对应的加码方法
+  // 对应的加码方法
   private def desEncoder(input:String): String = {
     val keySpec = new DESKeySpec ("kunyandata".getBytes ())
     val keyFactory = SecretKeyFactory.getInstance ("des")
@@ -92,7 +92,7 @@ object StringUtil {
     cipherText
   }
 
-  // 电信数据加码后对应的解码方法
+  // 对应的解码方法
   private def design(str:String): String ={
     val cipher = Cipher.getInstance ("des")
     val keySpec = new DESKeySpec ("kunyandata".getBytes ())
@@ -198,6 +198,9 @@ object StringUtil {
         j = next(j)
     }
   }
+  /*
+  * KMP 字符匹配算法
+   */
   def index_op(s:String,t:String,pos:Int) : Int = {
     val s_len = s.length
     val t_len = t.length
