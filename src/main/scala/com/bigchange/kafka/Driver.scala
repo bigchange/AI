@@ -1,4 +1,4 @@
-package scala.kafka
+package com.bigchange.kafka
 
 import java.text.{DateFormat, SimpleDateFormat}
 import java.util
