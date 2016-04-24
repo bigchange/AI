@@ -100,6 +100,7 @@ object MoviesLensALS {
 
     ratings.unpersist (blocking = false)
 
+    // ALS model
     val model = new ALS()
       .setRank (params.rank)
       .setIterations (params.numIterations)
@@ -110,6 +111,7 @@ object MoviesLensALS {
       .run (training)
       //.save(sc,"F:\\datatest\\ai\\ALSModel")
 
+    // evaluation RMSE
      val rmse = computeRmse (model, test, params.implicitPrefs)
       println (s"Test RMSE = $rmse.")
 
