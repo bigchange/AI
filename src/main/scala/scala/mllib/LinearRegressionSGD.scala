@@ -1,18 +1,21 @@
 package scala.mllib
 
 import org.apache.log4j.{Level, Logger}
+import org.apache.spark.mllib.classification.LogisticRegressionModel
+import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.optimization.{L1Updater, SquaredL2Updater, SimpleUpdater}
-import org.apache.spark.mllib.regression.LinearRegressionWithSGD
+import org.apache.spark.mllib.regression.{LabeledPoint, LinearRegressionWithSGD}
 import org.apache.spark.mllib.util.MLUtils
 import org.apache.spark.{SparkContext, SparkConf}
 
 /**
   * Created by C.J.YOU on 2016/3/24.
   */
-object LinearRegression {
+object LinearRegressionSGD {
 
+  // define enumeration type for regParam
   object RegType extends Enumeration {
-    type RegType = Value
+    type RegParamType = Value
     val NONE, L1, L2 = Value
   }
 
@@ -22,7 +25,7 @@ object LinearRegression {
                      var input: String = null,
                      numIterations: Int = 100,
                      stepSize: Double = 1.0,
-                     regType: RegType = L2,
+                     regType: RegParamType = L2,
                      regParam: Double = 0.01 ) extends AbstractParams[Params]
 
   def main(args: Array[String]) {
@@ -35,8 +38,9 @@ object LinearRegression {
 
     params.input = args(0)
 
+    // load training data set
     val examples = MLUtils.loadLibSVMFile(sc, params.input).cache()
-
+    //  split data into training (80%) and test(20%)
     val splits = examples.randomSplit(Array(0.8, 0.2))
     val training = splits(0).cache()
     val test = splits(1).cache()
@@ -47,12 +51,13 @@ object LinearRegression {
 
     examples.unpersist(blocking = false)
 
+    // weights updater
     val updater = params.regType match {
       case NONE => new SimpleUpdater()
       case L1 => new L1Updater()
       case L2 => new SquaredL2Updater()
     }
-
+    // training algorithm,build model
     val algorithm = new LinearRegressionWithSGD()
     algorithm.optimizer
       .setNumIterations(params.numIterations)
@@ -61,16 +66,30 @@ object LinearRegression {
       .setRegParam(params.regParam)
 
     val model = algorithm.run(training)
+    // test model on test data set return (prediction ,label)
+    val predictionAndLabel = test.map { case LabeledPoint(label,features) =>
+        val prediction = model.predict(features)
+      (prediction,label)
+    }
+    // another training test data method
+    /*val prediction = model.predict(test.map(_.features))
+    val predictionAndLabel = prediction.zip(test.map(_.label))*/
 
-    val prediction = model.predict(test.map(_.features))
-    val predictionAndLabel = prediction.zip(test.map(_.label))
+    // get metrics evaluation
+    val metrics = new MulticlassMetrics(predictionAndLabel)
+    // evaluation params
+    val precision = metrics.precision
+    val recall = metrics.recall
+    val fpr = metrics.falsePositiveRate(1.0)
+    val tpr = metrics.truePositiveRate(1.0)
+    val fmeasure = metrics.fMeasure(1.0)
+    println(s"precision=$precision,racall = $recall,fpr = $fpr,tpr = $tpr,F-Measure = $fmeasure")
 
-    test.map(x =>{
-     val label = x.label
-     val feature = x.features
-     label + "\t" + model.predict(feature)
-   }).foreach(println)
-
+    // save model
+    model.save(sc,"/model/LRSGD")
+    // load model from saving path
+    val sameModel = LogisticRegressionModel.load(sc,"/model/LRSGD")
+    // label RMSE
     /*val loss = predictionAndLabel.map { case (p, l) =>
       val err = p - l
       err * err
