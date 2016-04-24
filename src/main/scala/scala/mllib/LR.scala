@@ -2,7 +2,7 @@ package scala.mllib
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.mllib.classification.{SVMWithSGD, LogisticRegressionWithSGD, LogisticRegressionWithLBFGS, LogisticRegressionModel}
-import org.apache.spark.mllib.evaluation.MulticlassMetrics
+import org.apache.spark.mllib.evaluation.{BinaryClassificationMetrics, MulticlassMetrics}
 import org.apache.spark.mllib.optimization.{L1Updater, SquaredL2Updater, SimpleUpdater}
 import org.apache.spark.mllib.regression.{LabeledPoint, LinearRegressionWithSGD}
 import org.apache.spark.mllib.util.MLUtils
@@ -90,8 +90,10 @@ object LR {
       .setUpdater(updater)
       .setRegParam(params.regParam)
     val SVMWithSGDModel = SVMWithSGDObject.run(training)
-    val sVMWithSGDModel2 = SVMWithSGD.train(training,params.numIterations)
-
+    SVMWithSGDModel.clearThreshold()
+    val SVMWithSGDModel2 = SVMWithSGD.train(training,params.numIterations)
+    // clean threshold
+    SVMWithSGDModel2.clearThreshold()
     // test model on test data set return (prediction ,label)
     val predictionAndLabel = test.map { case LabeledPoint(label,features) =>
         val prediction = model.predict(features)
@@ -110,6 +112,11 @@ object LR {
     val tpr = metrics.truePositiveRate(1.0)
     val fmeasure = metrics.fMeasure(1.0)
     println(s"precision=$precision,racall = $recall,fpr = $fpr,tpr = $tpr,F-Measure = $fmeasure")
+
+    // get evaluation with AUC
+    val binaryMetrics = new BinaryClassificationMetrics(predictionAndLabel)
+    val auRoc = binaryMetrics.areaUnderPR()
+    println(s"Area Under ROC = $auRoc")
 
     // save model
     model.save(sc,"/model/LRSGD")
