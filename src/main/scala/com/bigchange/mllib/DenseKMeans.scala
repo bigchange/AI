@@ -16,7 +16,7 @@
  */
 
 // scalastyle:off println
-package scala.mllib
+package com.bigchange.mllib
 
 import org.apache.log4j.{Level, Logger}
 
