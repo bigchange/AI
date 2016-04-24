@@ -1,13 +1,13 @@
-package scala.util
+package com.bigchange.util
 
+import com.bigchange.config.FileConfig
+import com.bigchange.log.SUELogger
 import kafka.serializer.StringDecoder
 import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{SparkContext, SparkConf}
 
 import scala.collection.mutable
-import scala.config.FileConfig
-import scala.log.SUELogger
 
 /**
   * Created by C.J.YOU on 2016/4/5.

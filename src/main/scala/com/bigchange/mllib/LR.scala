@@ -1,4 +1,4 @@
-package scala.mllib
+package com.bigchange.mllib
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.mllib.classification.{SVMWithSGD, LogisticRegressionWithSGD, LogisticRegressionWithLBFGS, LogisticRegressionModel}

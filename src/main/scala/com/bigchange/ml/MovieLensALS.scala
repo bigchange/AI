@@ -1,4 +1,4 @@
-package scala.ml
+package com.bigchange.ml
 
 import java.io.File
 

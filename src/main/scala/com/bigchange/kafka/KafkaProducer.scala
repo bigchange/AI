@@ -1,4 +1,5 @@
-package scala.kafka
+package com.bigchange.kafka
+
 /*
 kafka 生产者实现类
  */
