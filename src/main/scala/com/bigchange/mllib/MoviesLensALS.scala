@@ -1,4 +1,4 @@
-package scala.mllib
+package com.bigchange.mllib
 
 import org.apache.log4j.{Logger, Level}
 import org.apache.spark.rdd.RDD

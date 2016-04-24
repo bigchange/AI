@@ -1,10 +1,10 @@
-package scala.util
+package com.bigchange.util
 
+import com.bigchange.log.SUELogger
 import org.apache.hadoop.hbase.client._
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HBaseConfiguration, HColumnDescriptor, HTableDescriptor, TableName}
 
-import scala.log.SUELogger
 
 
 /**
@@ -17,6 +17,7 @@ object HBaseUtil {
 
   /**
     * 获取hbase的连接器
+ *
     * @return connection
     */
   private def getConnection: Connection ={
@@ -43,6 +44,7 @@ object HBaseUtil {
 
   /**
     * 创建hbase表
+ *
     * @param tableName 表名
     * @param columnFamilys 列族的声明
     * @param connection 连接器

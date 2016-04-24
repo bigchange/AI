@@ -1,4 +1,4 @@
-package scala.util
+package com.bigchange.util
 
 import redis.clients.jedis.{Jedis, JedisPool, JedisPoolConfig}
 

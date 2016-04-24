@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package scala.mllib
+package com.bigchange.mllib
 
 import scala.reflect.runtime.universe._
 

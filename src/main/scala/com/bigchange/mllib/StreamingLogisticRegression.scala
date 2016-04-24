@@ -16,15 +16,17 @@
  */
 
 // scalastyle:off println
-package scala.mllib
+package com.bigchange.mllib
 
+import com.bigchange.util.TimeUtil
+import com.bigchange.util.{TimeUtil, FileUtil}
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.classification.StreamingLogisticRegressionWithSGD
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
-import scala.util.{TimeUtil, FileUtil}
+import com.bigchange.util.TimeUtil
 
 /**
  * Train a logistic regression model on one stream of data and make predictions

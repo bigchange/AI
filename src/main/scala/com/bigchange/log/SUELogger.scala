@@ -1,4 +1,4 @@
-package scala.log
+package com.bigchange.log
 
 import org.apache.log4j.{PropertyConfigurator, Logger}
 

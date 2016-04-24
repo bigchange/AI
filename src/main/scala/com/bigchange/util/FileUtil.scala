@@ -1,4 +1,4 @@
-package scala.util
+package com.bigchange.util
 
 import java.io._
 

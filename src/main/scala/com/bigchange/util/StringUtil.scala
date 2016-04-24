@@ -1,4 +1,4 @@
-package scala.util
+package com.bigchange.util
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.security.SecureRandom
@@ -6,7 +6,7 @@ import java.util.zip.{GZIPInputStream, DeflaterOutputStream, InflaterOutputStrea
 import javax.crypto.{SecretKeyFactory, Cipher}
 import javax.crypto.spec.DESKeySpec
 
-import scala.log.SUELogger
+import com.bigchange.log.SUELogger
 import org.json.JSONObject
 import sun.misc.{BASE64Encoder, BASE64Decoder}
 
@@ -137,6 +137,7 @@ object StringUtil {
 
   /**
     * <p>Description:使用gzip进行解压缩</p>
+ *
     * @param compressedStr
     * @return
     */

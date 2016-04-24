@@ -1,4 +1,4 @@
-package scala.mllib
+package com.bigchange.mllib
 
 import breeze.numerics.{sqrt, pow}
 import org.apache.spark.{HashPartitioner, SparkConf, SparkContext}

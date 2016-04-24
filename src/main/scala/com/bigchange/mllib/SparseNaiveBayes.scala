@@ -1,4 +1,4 @@
-package scala.mllib
+package com.bigchange.mllib
 
 import org.apache.spark.mllib.classification.NaiveBayes
 import org.apache.spark.mllib.util.MLUtils
