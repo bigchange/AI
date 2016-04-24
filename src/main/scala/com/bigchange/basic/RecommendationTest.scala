@@ -1,4 +1,5 @@
-package scala.basic
+package com.bigchange.basic
+
 import breeze.numerics.{pow, sqrt}
 import breeze.util.TopK
 import org.apache.spark.{HashPartitioner, SparkConf, SparkContext}

@@ -1,4 +1,4 @@
-package scala.http
+package com.bigchange.http
 
 import dispatch.Defaults._
 import dispatch._

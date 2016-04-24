@@ -1,4 +1,4 @@
-package scala.corenlp
+package com.bigchange.corenlp
 
 /**
   * Created by C.J.YOU on 2016/4/14.

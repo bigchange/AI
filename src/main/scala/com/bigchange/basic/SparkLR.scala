@@ -16,7 +16,7 @@
  */
 
 // scalastyle:off println
-package scala.basic
+package com.bigchange.basic
 
 import java.util.Random
 

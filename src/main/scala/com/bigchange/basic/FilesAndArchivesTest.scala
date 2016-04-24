@@ -1,4 +1,5 @@
-package scala.basic
+package com.bigchange.basic
+
 import java.io.File
 
 import org.apache.spark.{SparkConf, SparkContext}

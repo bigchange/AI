@@ -1,4 +1,4 @@
-package scala.config
+package com.bigchange.config
 
 /**
   * Created by C.J.YOU on 2016/1/17.

@@ -1,4 +1,4 @@
-package scala.basic
+package com.bigchange.basic
 
 /**
   * Created by C.J.YOU on 2016/4/20.
