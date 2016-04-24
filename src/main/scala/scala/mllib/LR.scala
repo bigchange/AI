@@ -1,7 +1,7 @@
 package scala.mllib
 
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.mllib.classification.LogisticRegressionModel
+import org.apache.spark.mllib.classification.{SVMWithSGD, LogisticRegressionWithSGD, LogisticRegressionWithLBFGS, LogisticRegressionModel}
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.optimization.{L1Updater, SquaredL2Updater, SimpleUpdater}
 import org.apache.spark.mllib.regression.{LabeledPoint, LinearRegressionWithSGD}
@@ -11,7 +11,7 @@ import org.apache.spark.{SparkContext, SparkConf}
 /**
   * Created by C.J.YOU on 2016/3/24.
   */
-object LinearRegressionSGD {
+object LR {
 
   // define enumeration type for regParam
   object RegType extends Enumeration {
@@ -57,15 +57,41 @@ object LinearRegressionSGD {
       case L1 => new L1Updater()
       case L2 => new SquaredL2Updater()
     }
-    // training algorithm,build model
+    // linearRegression training algorithm using SGD,build model
     val algorithm = new LinearRegressionWithSGD()
     algorithm.optimizer
       .setNumIterations(params.numIterations)
       .setStepSize(params.stepSize)
       .setUpdater(updater)
       .setRegParam(params.regParam)
-
     val model = algorithm.run(training)
+
+    // logisticRegression using LBFGS
+    val logisticLBFGS =  new LogisticRegressionWithLBFGS().setNumClasses(10)
+      logisticLBFGS.optimizer
+        .setNumIterations(params.numIterations)
+    val logisticLBFGSModel = logisticLBFGS.run(training)
+
+    // logisticRegression using SGD
+    val logisticSGD = new LogisticRegressionWithSGD()
+    logisticSGD.optimizer
+      .setNumIterations(params.numIterations)
+      .setStepSize(params.stepSize)
+      .setUpdater(updater)
+      .setRegParam(params.regParam)
+    val logisticSGDModel = logisticSGD.run(training)
+    val logisticSGDModel2 = LogisticRegressionWithSGD.train(training,params.numIterations,params.stepSize)
+
+    // using SVMWithSGD
+    val SVMWithSGDObject = new SVMWithSGD()
+    SVMWithSGDObject.optimizer
+      .setNumIterations(params.numIterations)
+      .setStepSize(params.stepSize)
+      .setUpdater(updater)
+      .setRegParam(params.regParam)
+    val SVMWithSGDModel = SVMWithSGDObject.run(training)
+    val sVMWithSGDModel2 = SVMWithSGD.train(training,params.numIterations)
+
     // test model on test data set return (prediction ,label)
     val predictionAndLabel = test.map { case LabeledPoint(label,features) =>
         val prediction = model.predict(features)
