@@ -11,11 +11,12 @@ import org.apache.spark.mllib.recommendation.{MatrixFactorizationModel, ALS, Rat
 object MoviesLensALS {
 
   case class Params(
-                     input: String = "F:\\datatest\\ai\\ratings.dat",
+                     ratingsData: String = "J:\\github\\dataSet\\ml-1m\\ml-1m\\ratings.dat",
+                     moviesData:String = "J:\\github\\dataSet\\ml-1m\\ml-1m\\movies.dat",
                      kryo: Boolean = false,
-                     numIterations: Int = 20,
-                     lambda: Double = 0.1,
-                     rank: Int = 12,
+                     numIterations: Int = 10,
+                     var lambda: Double = 0.1,
+                     rank: Int = 20,
                      numUserBlocks: Int = -1,
                      numProductBlocks: Int = -1,
                      implicitPrefs: Boolean = false) extends AbstractParams[Params]
@@ -36,7 +37,8 @@ object MoviesLensALS {
 
   def main(args: Array[String]) {
 
-    val conf = new SparkConf ().setAppName (s"MovieLensALS with")
+    val conf = new SparkConf ()
+      .setAppName (s"MovieLensALS with")
     .setMaster("local")
     val params = Params()
 
@@ -49,11 +51,7 @@ object MoviesLensALS {
     Logger.getRootLogger.setLevel (Level.WARN)
 
     val implicitPrefs = params.implicitPrefs
-
-    val ratings = sc.textFile (params.input).map { line =>
-      val fields = line.split ("::")
-      if (implicitPrefs) {
-        /*
+    /*
          * MovieLens ratings are on a scale of 1-5:
          * 5: Must see
          * 4: Will enjoy
@@ -67,11 +65,19 @@ object MoviesLensALS {
          * The semantics of 0 in this expanded world of non-positive weights
          * are "the same as never having interacted at all".
          */
+    val ratings = sc.textFile (params.ratingsData).map { line =>
+      val fields = line.split ("::")
+      if (implicitPrefs) {
         Rating (fields (0).toInt, fields (1).toInt, fields (2).toDouble - 2.5)
       } else {
         Rating (fields (0).toInt, fields (1).toInt, fields (2).toDouble)
       }
     }.cache ()
+
+    val moviesMap  = sc.textFile(params.moviesData).map{ line =>
+      val fields = line.split("::")
+      (fields(0).toInt,fields(1))
+    }.collectAsMap()
 
     val numRatings = ratings.count ()
     val numUsers = ratings.map (_.user).distinct ().count ()
@@ -100,22 +106,70 @@ object MoviesLensALS {
 
     ratings.unpersist (blocking = false)
 
-    // ALS model
-    val model = new ALS()
-      .setRank (params.rank)
-      .setIterations (params.numIterations)
-      .setLambda (params.lambda)
-      .setImplicitPrefs (params.implicitPrefs)
-      .setUserBlocks (params.numUserBlocks)
-      .setProductBlocks (params.numProductBlocks)
-      .run (training)
+    var minRmse = 100.0
+    var bestLamda = 0.01
+    // for(i <- 1 to 10){
+      params.lambda = 0.1 // * i
+      // ALS model
+      val model = new ALS()
+        .setRank (params.rank) // 因子的个数，低阶近似矩阵中隐含特征的个数。合理取值（10-200）
+        .setIterations (params.numIterations) // 10次左右的迭代基本收敛
+        .setLambda (params.lambda) // 正则化参数，控制模型出现过拟合，参数应该让通过非样本的测试数据进行交叉验证来调整
+        .setImplicitPrefs (params.implicitPrefs)
+        .setUserBlocks (params.numUserBlocks) //
+        .setProductBlocks (params.numProductBlocks) //
+        .run (training)
       //.save(sc,"F:\\datatest\\ai\\ALSModel")
 
-    // evaluation RMSE
-     val rmse = computeRmse (model, test, params.implicitPrefs)
-      println (s"Test RMSE = $rmse.")
+      // recommendation item for user (allow recommend item for user and user for item )
+      val userId = 22
+      val topK = 10
+      val topKItems = model.recommendProducts(userId,topK)
+      val topProduct = model.recommendProductsForUsers(10)
+      val topUser = model.recommendUsersForProducts(10)
 
+      // 用户和物品的因子向量
+      val userFeatures = model.userFeatures
+      val productFeatures  = model.productFeatures
+
+      // check recommend item for user
+      val userRatingMoviesSize = ratings.keyBy(_.user).lookup(userId).size // userId 22 rated movies
+      // list recommend movies for userId
+      println(topK+" movies for user:"+userId)
+      topKItems.map(ratings => (moviesMap(ratings.product),ratings.rating)).foreach(println)
+      // evaluation RMSE
+      val rmse = computeRmse (model, test, params.implicitPrefs)
+      // println (s"$i -> Test RMSE = $rmse.")
+      if(rmse < minRmse) {
+        minRmse = rmse
+        // bestLamda = i
+      }
+    // }
+    println(s"the best model of lamda:$bestLamda,RMSE:$minRmse")
+
+    // item to item
+    // 创建向量对象 jblas.DoubleMatrix
+    val itemId = 567
+    val itemFactor  = model.productFeatures.lookup(itemId).head
+    val itemVector = new DoubleMatrix(itemVector)
+    cosineSimilarity(itemVector,itemVector) // 1.0 : 自己与自己的相似度为1.0 totally same
+    //
+    val sims = productFeatures.map{ case(id,factor) =>
+       val factorVetcor = new DoubleMatrix(factor)
+       val sim = cosineSimilarity(itemVector,factorVetcor)
+      (id,sim)
+    }
+    val sortedSims = sims.top(topK)(Ordering.by[(Int,Double),Double]{ case (id,similarity) => similarity })
+    println(s"$itemId -> $topK simlarity movies:")
+    sortedSims.take(topK).map{ case (id,similarity) =>(moviesMap(id),similarity) }
+      .foreach(println)
     sc.stop ()
+  }
+
+  // 相似度的衡量方法：皮尔森相关系数，实数向量的余弦相似度，二元向量的杰卡德相似系数，这里介绍余弦相似度
+  // 余弦相似度取值(-1 ~ 1)：向量的点积与向量范数 或长度（L2-范数）的乘积的商
+  def cosineSimilarity(vector1:DoubleMatrix,vector2:DoubleMatrix):Double = {
+      vector1.dot(vector2) / (vector1.norm2 * vector2.norm2)
   }
 
 }
