@@ -41,10 +41,6 @@ libraryDependencies += "org.apache.spark" % "spark-streaming_2.10" % "1.5.2"
 
 libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.5.2"
 
-libraryDependencies += "org.scalactic" % "scalactic" % "2.2.5"
-
-libraryDependencies += "org.scalatest" % "scalatest" % "2.2.5" % "test"
-
 libraryDependencies += "org.jblas" % "jblas" % "1.2.3"
 
 assemblyMergeStrategy in assembly := {

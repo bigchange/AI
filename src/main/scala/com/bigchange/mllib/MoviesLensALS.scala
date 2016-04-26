@@ -1,9 +1,14 @@
 package com.bigchange.mllib
 
+import breeze.linalg.SparseVector
 import org.apache.log4j.{Logger, Level}
+import org.apache.spark.mllib.linalg.SparseVector
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.mllib.linalg.{SparseVector => SV}
+import breeze.linalg._
 import org.apache.spark.mllib.recommendation.{MatrixFactorizationModel, ALS, Rating}
+import org.jblas.DoubleMatrix
 
 /**
   * Created by C.J.YOU on 2016/3/21.
@@ -151,14 +156,29 @@ object MoviesLensALS {
     // 创建向量对象 jblas.DoubleMatrix
     val itemId = 567
     val itemFactor  = model.productFeatures.lookup(itemId).head
-    val itemVector = new DoubleMatrix(itemVector)
+    val itemVector = new DoubleMatrix(itemFactor)
     cosineSimilarity(itemVector,itemVector) // 1.0 : 自己与自己的相似度为1.0 totally same
-    //
+    // cal cosineSimilarity
+    // using DoubleMatrix
     val sims = productFeatures.map{ case(id,factor) =>
-       val factorVetcor = new DoubleMatrix(factor)
-       val sim = cosineSimilarity(itemVector,factorVetcor)
+       val factorVector = new DoubleMatrix(factor)
+       val sim = cosineSimilarity(itemVector,factorVector)
       (id,sim)
     }
+    // using SparseVector to cal cosineSimilarity
+    val itemVector2 = Vector.apply(itemFactor)
+    val sv1 = itemVector2.asInstanceOf[SV]
+    val itemSparseVector = new SparseVector[Double](sv1.indices,sv1.values,sv1.size)
+
+    // cosineSimilarity cal method
+    val sims2 = productFeatures.map{ case (id,factor) =>
+      val factorVector = Vector.apply(factor)
+      val sv1 = factorVector.asInstanceOf[SV]
+      val factorSparseVector = new SparseVector[Double](sv1.indices,sv1.values,sv1.size)
+      val sim = itemSparseVector.dot(factorSparseVector).asInstanceOf[Double] / (norm(itemSparseVector) * norm(factorSparseVector))
+      (id,sim)
+    }
+
     val sortedSims = sims.top(topK)(Ordering.by[(Int,Double),Double]{ case (id,similarity) => similarity })
     println(s"$itemId -> $topK simlarity movies:")
     sortedSims.take(topK).map{ case (id,similarity) =>(moviesMap(id),similarity) }
@@ -171,5 +191,4 @@ object MoviesLensALS {
   def cosineSimilarity(vector1:DoubleMatrix,vector2:DoubleMatrix):Double = {
       vector1.dot(vector2) / (vector1.norm2 * vector2.norm2)
   }
-
 }
