@@ -2,7 +2,6 @@ package com.bigchange.mllib
 
 import breeze.linalg.SparseVector
 import org.apache.log4j.{Logger, Level}
-import org.apache.spark.mllib.linalg.SparseVector
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.mllib.linalg.{SparseVector => SV}
@@ -149,8 +148,29 @@ object MoviesLensALS {
         minRmse = rmse
         // bestLamda = i
       }
+
     // }
     println(s"the best model of lamda:$bestLamda,RMSE:$minRmse")
+    // 计算k值平均准确率
+    // 物品因子矩阵： 广播出去用于后续计算
+    val itemFactors = model.productFeatures.map{ case (id,factor) => factor }.collect()
+    val itemMatrix = new DoubleMatrix(itemFactors)
+    val imBroadcast = sc.broadcast(itemMatrix)
+    // 计算每个用户的推荐
+    val allRecs = model.userFeatures.map{ case(userID,array) =>
+      val userVector = new DoubleMatrix(array)
+      val scores = imBroadcast.value.mmul(userVector)
+      val sortedWithId = scores.data.zipWithIndex.sortBy(-_._1)
+      val recommendedIds = sortedWithId.map(_._2 + 1).toSeq  // 物品id + 1 由于物品因子矩阵的编号为0开始
+      (userID,recommendedIds)
+    }
+    val userMovies = ratings.map{ case Rating(user,product,rating) => (user,product)}.groupBy(_._1)
+    val K = 10
+    val MAPK = allRecs.join(userMovies).map{ case(userID,(predicted,actualWithIds)) =>
+      val actual = actualWithIds.map(_._2).toSeq
+      avgPrecisionK(actual,predicted,K)
+    }.reduce(_+_) / allRecs.count  // MAPK: 整个数据集上的平均准确率
+    println(s"Mean Average Precision at K =" + MAPK)
 
     // item to item
     // 创建向量对象 jblas.DoubleMatrix
@@ -183,6 +203,7 @@ object MoviesLensALS {
     println(s"$itemId -> $topK simlarity movies:")
     sortedSims.take(topK).map{ case (id,similarity) =>(moviesMap(id),similarity) }
       .foreach(println)
+
     sc.stop ()
   }
 
@@ -190,5 +211,23 @@ object MoviesLensALS {
   // 余弦相似度取值(-1 ~ 1)：向量的点积与向量范数 或长度（L2-范数）的乘积的商
   def cosineSimilarity(vector1:DoubleMatrix,vector2:DoubleMatrix):Double = {
       vector1.dot(vector2) / (vector1.norm2 * vector2.norm2)
+  }
+
+  // 计算K值平均准确率：衡量查询所返回的前k个文档的平均相关性,实际与预测的比较
+  def avgPrecisionK(actual:Seq[Int],predicted:Seq[Int],k:Int):Double={
+    val predK = predicted.take(k)
+    var score = 0.0
+    var numHits = 0.0
+    for((p,i) <- predK.zipWithIndex){
+      if(actual.contains(p)){
+        numHits += 1.0
+        score += numHits / (i.toDouble + 1.0)
+      }
+    }
+    if(actual.isEmpty){
+      1.0
+    }else {
+      score / scala.math.min(actual.size,k).toDouble
+    }
   }
 }
