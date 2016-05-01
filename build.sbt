@@ -29,6 +29,8 @@ libraryDependencies += "org.apache.spark" % "spark-mllib_2.10" % "1.5.2"
 
 libraryDependencies += "org.apache.spark" % "spark-sql_2.10" % "1.5.2"
 
+libraryDependencies += "org.apache.spark" % "spark-hive_2.10" % "1.5.2"
+
 libraryDependencies += "redis.clients" % "jedis" % "2.8.0"
 
 libraryDependencies += "com.ning" % "async-http-client" % "1.7.16"
