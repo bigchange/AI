@@ -18,18 +18,19 @@ object TFIDF {
     val sc = new SparkContext(conf)
 
     // Load documents (one per line).要求每行作为一个document,这里zipWithIndex将每一行的行号作为doc id
-    val documents = sc.parallelize(Source.fromFile("/testDocument").getLines()
+    val documents = sc.parallelize(Source.fromFile("J:\\github\\dataSet\\TFIDF-DOC").getLines()
       .filter(_.trim.length > 0).toSeq)
       .map(_.split(" ").toSeq)
       .zipWithIndex()
 
 
+    // feature number
     val hashingTF = new HashingTF(Math.pow(2, 18).toInt)
     //line number for doc id，每一行的分词结果生成tf vector
     val idAndTFVector = documents.map {
       case (seq, num) =>
         val tf = hashingTF.transform(seq)
-        (num, tf)
+        (num + 1, tf)
     }
     idAndTFVector.cache()
     // build idf model
