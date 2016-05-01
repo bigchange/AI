@@ -2,7 +2,7 @@ package com.bigchange.mllib
 
 import breeze.linalg.SparseVector
 import org.apache.log4j.{Logger, Level}
-import org.apache.spark.mllib.evaluation.RegressionMetrics
+import org.apache.spark.mllib.evaluation.{RankingMetrics, RegressionMetrics}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.mllib.linalg.{SparseVector => SV}
@@ -181,6 +181,13 @@ object MoviesLensALS {
     val regressionMetrics = new RegressionMetrics(predictionAndActual)
     println("Mean Squared Error = " + regressionMetrics.meanSquaredError)
     println("Root Mean Squared Error = "+ regressionMetrics.rootMeanSquaredError)
+    // MAP (Mean Average Precision ) equal  K 值比较大
+    val predictionAndActualForRanking  = allRecs.join(userMovies).map{ case(userID,(predicted,actualWithIds)) =>
+      val actual = actualWithIds.map(_._2)
+      (predicted.toArray,actual.toArray)
+    }
+    val rankingMetrics = new RankingMetrics(predictionAndActualForRanking)
+    println(s"Mean Average Precision =" + rankingMetrics.meanAveragePrecision) // almost same while K = 实际物品的总数
 
     // item to item
     // 创建向量对象 jblas.DoubleMatrix
