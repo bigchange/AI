@@ -2,6 +2,7 @@ package com.bigchange.mllib
 
 import breeze.linalg.SparseVector
 import org.apache.log4j.{Logger, Level}
+import org.apache.spark.mllib.evaluation.RegressionMetrics
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.mllib.linalg.{SparseVector => SV}
@@ -141,7 +142,8 @@ object MoviesLensALS {
       // list recommend movies for userId
       println(topK+" movies for user:"+userId)
       topKItems.map(ratings => (moviesMap(ratings.product),ratings.rating)).foreach(println)
-      // evaluation RMSE
+
+      //  evaluation RMSE
       val rmse = computeRmse (model, test, params.implicitPrefs)
       // println (s"$i -> Test RMSE = $rmse.")
       if(rmse < minRmse) {
@@ -171,6 +173,14 @@ object MoviesLensALS {
       avgPrecisionK(actual,predicted,K)
     }.reduce(_+_) / allRecs.count  // MAPK: 整个数据集上的平均准确率
     println(s"Mean Average Precision at K =" + MAPK)
+    // MLlib 内置的评估函数 使用（RegressionMetrics,RankingMetrics）
+    val predictionAndActual = training.map{ x =>
+      val predicted = model.predict(x.user,x.product)
+      (predicted,x.rating)
+    }
+    val regressionMetrics = new RegressionMetrics(predictionAndActual)
+    println("Mean Squared Error = " + regressionMetrics.meanSquaredError)
+    println("Root Mean Squared Error = "+ regressionMetrics.rootMeanSquaredError)
 
     // item to item
     // 创建向量对象 jblas.DoubleMatrix
