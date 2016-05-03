@@ -1,6 +1,3 @@
-import _root_.sbtassembly.AssemblyPlugin.autoImport._
-import _root_.sbtassembly.PathList
-
 name := "AI"
 
 version := "1.0"
