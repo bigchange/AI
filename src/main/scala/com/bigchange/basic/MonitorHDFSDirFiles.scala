@@ -27,10 +27,10 @@ object MonitorHDFSDirFiles {
     // stream to count words in new files created
     val lines = ssc.textFileStream(args(0))
     val words = lines.flatMap(_.split(" "))
-    val wordCounts = words.map(x => (x, 1)).reduceByKey(_ + _)
-
-    println(s"------------------->>>>>>> $wordCounts")
-
+    val wordCounts = words.map(x => (x, 1)).reduceByKey(_ + _).foreachRDD(rdd =>{
+      val arr = rdd.collect()
+      arr.foreach(println)
+    })
     ssc.start()
     ssc.awaitTermination()
   }
