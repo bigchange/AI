@@ -8,6 +8,7 @@ case class Person(name: String, occupation: String, age: Int)
 
 /**
   * Created by C.J.YOU on 2016/5/3.
+  * 该示例展示了图的一些基本用法，包括图的创建，图的一些基本操作等。
   */
 object GraphOperation {
 
