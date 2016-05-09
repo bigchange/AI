@@ -94,7 +94,7 @@ object KaggleEverGreen {
     }
     val allMetrics = metrics ++ nbMetrics ++ dtMetrics
     allMetrics.foreach { case (modelType,areaPR,areaROC) =>
-      println(x = f"$modelType,Area Under PR:${areaPR * 100.0}%2.4%%,Area Under ROC:${areaROC * 100.0}%2.4%%")
+      // println(x = f"$modelType,Area Under PR:${areaPR * 100.0}%2.4%%,Area Under ROC:${areaROC * 100.0}%2.4%%")
     }
     // 类似计算性能的类MulticlassMetrics
 

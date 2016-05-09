@@ -25,8 +25,8 @@ object KaggleEverGreen {
     // 数据清理，替换而外的（“）和数据集中一些（？）代替的缺失数据，缺失数据本例中用0替换
     val data = records.map{ r =>
       val trimmed = r.map(_.replace("\"",""))
-      val label = trimmed(r.size - 1).toInt
-      val features = trimmed.slice(4,r.size -1).map(d => if(d == "?") 0.0 else d.toDouble)
+      val label = trimmed(r.length - 1).toInt
+      val features = trimmed.slice(4,r.length -1).map(d => if(d == "?") 0.0 else d.toDouble)
       LabeledPoint(label,Vectors.dense(features)) // 封装目标变量和特征向量
      }
 
@@ -36,8 +36,8 @@ object KaggleEverGreen {
     // 朴素贝叶斯要求特征非负
     val naivebayesData = records.map{ r =>
       val trimmed = r.map(_.replace("\"",""))
-      val label = trimmed(r.size - 1).toInt
-      val features = trimmed.slice(4,r.size - 1).map(d => if(d == "?") 0.0 else d.toDouble).map(d => if(d < 0) 0.0 else d )
+      val label = trimmed(r.length - 1).toInt
+      val features = trimmed.slice(4,r.length - 1).map(d => if(d == "?") 0.0 else d.toDouble).map(d => if(d < 0) 0.0 else d )
       LabeledPoint(label,Vectors.dense(features))
     }
 
@@ -94,7 +94,7 @@ object KaggleEverGreen {
     }
     val allMetrics = metrics ++ nbMetrics ++ dtMetrics
     allMetrics.foreach { case (modelType,areaPR,areaROC) =>
-      println(x = f"$modelType,Area Under PR:${areaPR * 100.0}%2.4%%,Area Under ROC:${areaROC * 100.0}%2.4%%")
+      // println(x = f"$modelType,Area Under PR:${areaPR * 100.0}%2.4%%,Area Under ROC:${areaROC * 100.0}%2.4%%")
     }
     // 类似计算性能的类MulticlassMetrics
 
@@ -124,12 +124,12 @@ object KaggleEverGreen {
     println(s"添加的类别特征范围大小:"+ numCategories)
     val dataCategories = records.map{r =>
       val trimmed = r.map(_.replaceAll("\"",""))
-      val label = trimmed(r.size - 1).toInt
+      val label = trimmed(r.length - 1).toInt
       val categoryIdx  = categories(r(3)) // 原始数据集中第四列类别特征提取
       /** Creates array with given dimensions */
       val categoryFeatures = Array.ofDim[Double](numCategories)
       categoryFeatures(categoryIdx) = 1.0 // 对应特征的位置下标值为1.0，其余为0.0
-      val otherFeatures = trimmed.slice(4,r.size - 1).map(d => if(d == "?") 0.0 else d.toDouble)
+      val otherFeatures = trimmed.slice(4,r.length - 1).map(d => if(d == "?") 0.0 else d.toDouble)
       val features = categoryFeatures.++(otherFeatures)
       LabeledPoint(label,Vectors.dense(features))
     }
