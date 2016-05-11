@@ -1,6 +1,4 @@
-import _root_.sbtassembly.AssemblyPlugin.autoImport._
-import _root_.sbtassembly.PathList
-
+mainClass in (Compile, packageBin) := Some("com.bigchange.basic.DataFrameTest")
 name := "AI"
 
 version := "1.0"
@@ -29,6 +27,10 @@ libraryDependencies += "org.apache.spark" % "spark-mllib_2.10" % "1.5.2"
 
 libraryDependencies += "org.apache.spark" % "spark-sql_2.10" % "1.5.2"
 
+libraryDependencies += "org.apache.spark" % "spark-hive_2.10" % "1.5.2"
+
+libraryDependencies += "org.apache.spark" % "spark-graphx_2.10" % "1.5.2"
+
 libraryDependencies += "redis.clients" % "jedis" % "2.8.0"
 
 libraryDependencies += "com.ning" % "async-http-client" % "1.7.16"
@@ -41,9 +43,7 @@ libraryDependencies += "org.apache.spark" % "spark-streaming_2.10" % "1.5.2"
 
 libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.5.2"
 
-libraryDependencies += "org.scalactic" %% "scalactic" % "2.2.5"
-
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.5" % "test"
+libraryDependencies += "org.jblas" % "jblas" % "1.2.3"
 
 assemblyMergeStrategy in assembly := {
   case PathList("javax", "servlet", xs @ _*) => MergeStrategy.last

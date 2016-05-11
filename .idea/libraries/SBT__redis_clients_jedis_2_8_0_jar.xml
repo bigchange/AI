@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: redis.clients:jedis:2.8.0:jar">
+    <CLASSES>
+      <root url="jar://G:/.ivy2/cache/redis.clients/jedis/jars/jedis-2.8.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://G:/.ivy2/cache/redis.clients/jedis/srcs/jedis-2.8.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

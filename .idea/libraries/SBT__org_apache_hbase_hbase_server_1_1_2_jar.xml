@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="SBT: org.apache.hbase:hbase-server:1.1.2:jar">
+    <CLASSES>
+      <root url="jar://G:/.ivy2/cache/org.apache.hbase/hbase-server/jars/hbase-server-1.1.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://G:/.ivy2/cache/org.apache.hbase/hbase-server/srcs/hbase-server-1.1.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
