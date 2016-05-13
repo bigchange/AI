@@ -1,3 +1,4 @@
+mainClass in (Compile, packageBin) := Some("com.bigchange.basic.DataFrameTest")
 name := "AI"
 
 version := "1.0"
