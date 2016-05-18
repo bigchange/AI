@@ -9,6 +9,7 @@ import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.mllib.tree.DecisionTree
 import org.apache.spark.mllib.tree.configuration.Algo
 import org.apache.spark.mllib.tree.impurity.Entropy
+import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
@@ -119,7 +120,11 @@ object KaggleEverGreen {
 
     // 其他特征：对模型的影响，比如，类别特征
     // 对类别特征做1-of-k编码
+
     val categories = records.map( r => r(3)).distinct.collect().zipWithIndex.toMap
+    // 使用定义的特征映射函数完成
+    val categories_map = getFeatureMapping(records, 3) // 将第三列的类别特征装换为编码形式
+
     val numCategories = categories.size
     println(s"添加的类别特征范围大小:"+ numCategories)
     val dataCategories = records.map{r =>
@@ -136,5 +141,23 @@ object KaggleEverGreen {
 
     /** 同样需要经过:标准化转换，训练相应的模型，最后查看评估值 */
     // 模型参数的调优
+
+    /*
+     * 这里的数据都是归一化后的实数变量类型，当存在像本数据集中类别这种类型变量时，我们需要
+     * 将每个特征表示成二维的形式，我们将特征值映射到二元向量中非零的位置，定义一个这样的映射函数完成该功能：
+     */
+    def getFeatureMapping(rdd: RDD[Array[String]], index: Int) = {
+      rdd.map(x => x(index)).distinct().zipWithIndex.collectAsMap()
+    }
+    // 特征转换为编码后的向量
+    def featureToVector(featureMap:Map[String,Int], feature: String) = {
+      val idx  = featureMap(feature) // 原始数据集中类型特征提取
+      /** Creates array with given dimensions */
+      val featureArray = Array.ofDim[Double](featureMap.size)
+      featureArray.update(idx,1.0)// 对应特征的位置下标值为1.0，其余为0.0
+      featureArray
+    }
+
+
   }
 }
