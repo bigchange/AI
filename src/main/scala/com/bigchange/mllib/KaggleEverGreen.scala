@@ -124,17 +124,20 @@ object KaggleEverGreen {
     println(s"添加的类别特征范围大小:"+ numCategories)
     val dataCategories = records.map{r =>
       val trimmed = r.map(_.replaceAll("\"",""))
-      val label = trimmed(r.size - 1).toInt
+      val label = trimmed(r.length - 1).toInt
       val categoryIdx  = categories(r(3)) // 原始数据集中第四列类别特征提取
       /** Creates array with given dimensions */
       val categoryFeatures = Array.ofDim[Double](numCategories)
       categoryFeatures(categoryIdx) = 1.0 // 对应特征的位置下标值为1.0，其余为0.0
-      val otherFeatures = trimmed.slice(4,r.size - 1).map(d => if(d == "?") 0.0 else d.toDouble)
+      val otherFeatures = trimmed.slice(4,r.length - 1).map(d => if(d == "?") 0.0 else d.toDouble)
       val features = categoryFeatures.++(otherFeatures)
       LabeledPoint(label,Vectors.dense(features))
     }
 
     /** 同样需要经过:标准化转换，训练相应的模型，最后查看评估值 */
     // 模型参数的调优
+
+
+
   }
 }
