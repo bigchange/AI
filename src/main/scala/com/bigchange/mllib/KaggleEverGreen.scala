@@ -17,7 +17,9 @@ import org.apache.spark.{SparkConf, SparkContext}
   * 数据集：开始四列:URL、页面ID、原始文本内容和分配给页面的类别、接下来22列包含各种各样的数值或者属性类别、最后一列为目标值，-1 为长久，0为短暂
   */
 object KaggleEverGreen {
+
   val sc = new SparkContext(new SparkConf().setAppName("Classification").setMaster("local"))
+
   def main(args: Array[String]) {
     //检查数据
     val rawData = sc.textFile(args(0))
@@ -27,8 +29,10 @@ object KaggleEverGreen {
       val trimmed = r.map(_.replace("\"",""))
       val label = trimmed(r.size - 1).toInt
       val features = trimmed.slice(4,r.size -1).map(d => if(d == "?") 0.0 else d.toDouble)
+
       LabeledPoint(label,Vectors.dense(features)) // 封装目标变量和特征向量
-     }
+
+    }
 
     data.cache()
     val numData = data.count()
@@ -38,7 +42,9 @@ object KaggleEverGreen {
       val trimmed = r.map(_.replace("\"",""))
       val label = trimmed(r.size - 1).toInt
       val features = trimmed.slice(4,r.size - 1).map(d => if(d == "?") 0.0 else d.toDouble).map(d => if(d < 0) 0.0 else d )
+
       LabeledPoint(label,Vectors.dense(features))
+
     }
 
     // train model: 其他参数为默认，svm和lr设置了迭代次数，dt设置最大树深度
@@ -59,11 +65,12 @@ object KaggleEverGreen {
       * evaluation model : 正确率，错误率，准确率和召回率（PR），ROC曲线，F-Measure
       */
     // DT的预测阈值是需要明确给出的
-    val dtTotalCorrect = data.map{point =>
+    val dtTotalCorrect = data.map{ point =>
       val score = dtModel.predict(point.features)
       val predicted = if(score > 0.5) 1 else 0
       if(predicted == point.label) 1 else 0
     }.sum
+
     val dtAccuracy = dtTotalCorrect / numData
     println(s"dt accuracy：$dtAccuracy") // dt accuracy：0.6482758620689655
     // PR 和 ROC曲线下的面积
@@ -122,7 +129,7 @@ object KaggleEverGreen {
     val categories = records.map( r => r(3)).distinct.collect().zipWithIndex.toMap
     val numCategories = categories.size
     println(s"添加的类别特征范围大小:"+ numCategories)
-    val dataCategories = records.map{r =>
+    val dataCategories = records.map{ r =>
       val trimmed = r.map(_.replaceAll("\"",""))
       val label = trimmed(r.length - 1).toInt
       val categoryIdx  = categories(r(3)) // 原始数据集中第四列类别特征提取
@@ -131,7 +138,9 @@ object KaggleEverGreen {
       categoryFeatures(categoryIdx) = 1.0 // 对应特征的位置下标值为1.0，其余为0.0
       val otherFeatures = trimmed.slice(4,r.length - 1).map(d => if(d == "?") 0.0 else d.toDouble)
       val features = categoryFeatures.++(otherFeatures)
+
       LabeledPoint(label,Vectors.dense(features))
+
     }
 
     /** 同样需要经过:标准化转换，训练相应的模型，最后查看评估值 */
