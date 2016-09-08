@@ -141,6 +141,7 @@ object KaggleEverGreen {
 
     /** 同样需要经过:标准化转换，训练相应的模型，最后查看评估值 */
     // 模型参数的调优
+    // welcome back on Web,7th September, today is a big day. i decide to back to AI
 
     /*
      * 这里的数据都是归一化后的实数变量类型，当存在像本数据集中类别这种类型变量时，我们需要
