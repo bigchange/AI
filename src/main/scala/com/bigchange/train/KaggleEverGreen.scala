@@ -143,22 +143,22 @@ object KaggleEverGreen {
     // 模型参数的调优
     // welcome back on Web,7th September, today is a big day. i decide to back to AI
 
-    /*
-     * 这里的数据都是归一化后的实数变量类型，当存在像本数据集中类别这种类型变量时，我们需要
-     * 将每个特征表示成二维的形式，我们将特征值映射到二元向量中非零的位置，定义一个这样的映射函数完成该功能：
-     */
-    def getFeatureMapping(rdd: RDD[Array[String]], index: Int) = {
-      rdd.map(x => x(index)).distinct().zipWithIndex.collectAsMap()
-    }
-    // 特征转换为编码后的向量
-    def featureToVector(featureMap:Map[String,Int], feature: String) = {
-      val idx  = featureMap(feature) // 原始数据集中类型特征提取
-      /** Creates array with given dimensions */
-      val featureArray = Array.ofDim[Double](featureMap.size)
-      featureArray.update(idx,1.0)// 对应特征的位置下标值为1.0，其余为0.0
-      featureArray
-    }
-
-
   }
+
+  /*
+    * 这里的数据都是归一化后的实数变量类型，当存在像本数据集中类别这种类型变量时，我们需要
+    * 将每个特征表示成二维的形式，我们将特征值映射到二元向量中非零的位置，定义一个这样的映射函数完成该功能：
+    */
+  def getFeatureMapping(rdd: RDD[Array[String]], index: Int) = {
+    rdd.map(x => x(index)).distinct().zipWithIndex.collectAsMap()
+  }
+  // 特征转换为编码后的向量
+  def featureToVector(featureMap:Map[String,Int], feature: String) = {
+    val idx  = featureMap(feature) // 原始数据集中类型特征提取
+    /** Creates array with given dimensions */
+    val featureArray = Array.ofDim[Double](featureMap.size)
+    featureArray.update(idx,1.0)// 对应特征的位置下标值为1.0，其余为0.0
+    featureArray
+  }
+
 }
