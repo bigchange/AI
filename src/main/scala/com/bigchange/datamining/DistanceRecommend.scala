@@ -5,6 +5,7 @@ import org.apache.spark.mllib.linalg.{SparseVector => SV}
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
 
+import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 /**
@@ -89,14 +90,17 @@ object DistanceRecommend {
   }
 
   // 找出K最近邻用户，根据相似度的值给对应用户设定评分的决定权重，按照权重重新计算评分，找出最高评分。下面使用pearson系数确定K个邻近用户
-  def computeKNearestNeighbor(user:String, userList: Map[String,List[Rating]], metric: (List[Rating] , List[Rating]) => Double, k:Int) = computeNearestNeighbor(_,_,_).take(_)
+  def computeKNearestNeighbor(user:String,
+                              userList: Map[String,List[Rating]],
+                              metric: (List[Rating] , List[Rating]) => Double,
+                              k:Int) = computeNearestNeighbor(user, userList, metric).take(k)
 
   // recommend : 数据量大的话使用RDD
   def recommend(user:String, userList: Map[String,List[Rating]]): List[(String,Double)] = {
 
     var recommendList = new ListBuffer[(String,Double)]
-
-    val distanceComp = minkowski(_, _, 1)
+    // 距离计算选择偏函数 1: 曼哈顿距离
+    val distanceComp = minkowski(_:List[Rating], _:List[Rating], 1)
     // 找到距离最近的用户
     val nearest = computeNearestNeighbor(user, userList, distanceComp).head
     // 自己评价的乐队
@@ -107,6 +111,42 @@ object DistanceRecommend {
     recommendRating.foreach(x => if(! userItemList.contains(x.item)) { recommendList.+=((x.item,x.value)) })
 
     recommendList.sortBy(_._2).toList.reverse
+
+  }
+
+  // k最邻近算法推荐
+  def kRecommend(user:String, userList: Map[String,List[Rating]], k:Int): mutable.HashMap[String,Double] = {
+
+    var userPearsonList = new ListBuffer[(String,Double)]
+    // 计算任意用户之间的pearson
+    userList.foreach(x => if(x._1 != user) userPearsonList.+=((x._1, pearson(x._2, userList(user)))))
+    // 获取k个最相关的用户
+    val kUsers = userPearsonList.sortBy(_._2).toList.reverse.take(k)
+    println("Kuser: " + kUsers )
+    val totalWeight = kUsers.map(_._2).sum
+    val userWeight = kUsers.map(x => (x._1, x._2 / (1.0 * totalWeight)))
+    println("userWeight:" + userWeight)
+    // 根据权重计算评分: 先去除用户user已经评分的
+    // user自己评价的乐队集合
+    val userItemList = userList(user).map(_.item).iterator.toList
+    // 计算 评分
+    val recommendRatingCompute = new mutable.HashMap[String, Double]()
+
+    userWeight.foreach( x => {
+      userList(x._1).foreach( y => {
+        // 自己没有评价过
+        if( !userItemList.contains(y.item)) {
+          
+          if(!recommendRatingCompute.contains(y.item)) {
+            recommendRatingCompute.+=((y.item, y.value * x._2))
+          } else {
+            recommendRatingCompute.update(y.item, recommendRatingCompute.get(y.item).get + y.value * x._2)
+          }
+        }
+      })
+    })
+
+    recommendRatingCompute
 
   }
 
