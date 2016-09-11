@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+    <logger>
+        <path>"path://"</path>
+     </logger>
+     <hbase>
+        <rootDir>""</rootDir>
+        <quorum>""</quorum>
+    </hbase>
+     <mysql>
+        <url>""</url>
+        <driver>com.mysql.jdbc.Driver</driver>
+        <username>""</username>
+        <password>""</password>
+    </mysql>
+  </xml>

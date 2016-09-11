@@ -52,7 +52,7 @@ object TFIDF {
           case (id2, idf2) =>
             val sv2 = idf2.asInstanceOf[SV]
             val bsv2 = new SparseVector[Double](sv2.indices, sv2.values, sv2.size)
-            val cosSim = bsv1.dot(bsv2).asInstanceOf[Double] / (norm(bsv1) * norm(bsv2))
+            val cosSim = bsv1.dot(bsv2) / (norm(bsv1) * norm(bsv2))
             (id1, id2, cosSim)
         }
     }

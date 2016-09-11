@@ -8,6 +8,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 /**
   * Created by C.J.YOU on 2016/5/9.
+  * 用于数值识别的贝叶斯算法
   */
 object DigitRecognizer {
 
