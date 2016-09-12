@@ -28,6 +28,41 @@ object DistanceRecommend {
     }
   }
 
+  // 标准化
+  def normalization(arr:Array[Double]): Array[Double] = {
+
+    val listBuffer = new ListBuffer[Double]
+    // 获取中位数
+    def getMedian(arr:Array[Double]): Double = {
+
+      val sortList = arr.sortBy(_).reverse.toList
+      val len = arr.length
+      if(len % 2 == 1) {
+        arr(len / 2)
+      } else {
+        (arr(len / 2 - 1) + arr(len / 2)) / 2
+      }
+    }
+    // 计算ads
+    def getAbsoluteStandardDeviation(array: Array[Double],median: Double): Double = {
+
+      var sum = 0.0
+      for (item <- array) {
+        sum += abs(item - median)
+      }
+      sum / array.length * 1.0
+    }
+
+    val median = getMedian(arr)
+    val ads = getAbsoluteStandardDeviation(arr, median)
+
+    for (item <- arr) {
+      listBuffer.+=((item - median) / ads)
+    }
+    listBuffer.toArray
+
+  }
+
   // 计算曼哈顿距离
   def manhattan(rating1List:List[Rating], rating2List:List[Rating]) = {
 
