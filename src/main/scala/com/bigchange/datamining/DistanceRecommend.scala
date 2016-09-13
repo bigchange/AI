@@ -35,12 +35,12 @@ object DistanceRecommend {
     // 获取中位数
     def getMedian(arr:Array[Double]): Double = {
 
-      val sortList = arr.sortBy(_).reverse.toList
+      val sortd = arr.toList.sortWith(_ < _).toArray
       val len = arr.length
       if(len % 2 == 1) {
-        arr(len / 2)
+       sortd(len / 2)
       } else {
-        (arr(len / 2 - 1) + arr(len / 2)) / 2
+        (sortd(len / 2 - 1) + sortd(len / 2)) / 2
       }
     }
     // 计算ads
@@ -239,7 +239,7 @@ object DistanceRecommend {
 
   }
 
-  // slope One 算法
+  // slope One 算法: 关注有些差异值是不需要重新计算历史数据集，只需记录之前差值和记录同时评价过这对物品的用户数就可以了[逻辑暂时没有实现]
   // 第一步item计算差值
   def computeDeviations(item1: String, item2: String, userList: Map[String,List[Rating]]): Double = {
 
