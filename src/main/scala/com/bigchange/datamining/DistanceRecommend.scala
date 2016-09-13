@@ -322,19 +322,4 @@ object DistanceRecommend {
 
   }
 
-  // val sc = SparkContext.getOrCreate(new SparkConf().setAppName("Test").setMaster("local"))
-
-  // main 函数
-  def main(args: Array[String]) {
-
-    val user1 = "Hailey,Broken Bells:4.0,Deadmau5:1.0,Norah Jones:4.0,The Strokes:4.0,Vampire Weekend:1.0"
-    val user2 = "Veronica,Blues Traveler:3.0,Norah Jones:5.0,Phoenix:4.0,Slightly Stoopid:2.5,The Strokes:3.0"
-    val userList = List(user1, user2)
-
-    // val userData = initial(sc.parallelize(userList))
-    // userList.foreach(println)
-
-  }
-
-
 }
