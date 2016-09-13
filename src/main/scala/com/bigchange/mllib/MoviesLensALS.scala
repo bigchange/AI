@@ -212,7 +212,7 @@ object MoviesLensALS {
       val factorVector = Vector.apply(factor)
       val sv1 = factorVector.asInstanceOf[SV]
       val factorSparseVector = new SparseVector[Double](sv1.indices,sv1.values,sv1.size)
-      val sim = itemSparseVector.dot(factorSparseVector).asInstanceOf[Double] / (norm(itemSparseVector) * norm(factorSparseVector))
+      val sim = itemSparseVector.dot(factorSparseVector) / (norm(itemSparseVector) * norm(factorSparseVector))
       (id,sim)
     }
 
