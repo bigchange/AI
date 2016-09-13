@@ -1,6 +1,6 @@
 package com.bigchange.util
 
-import com.bigchange.log.SUELogger
+import com.bigchange.log.CLogger
 import org.apache.hadoop.hbase.client._
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HBaseConfiguration, HColumnDescriptor, HTableDescriptor, TableName}
@@ -33,7 +33,7 @@ object HBaseUtil {
     hbaseConf.set("hbase.rootdir", "hdfs://ns1/hbase")
     hbaseConf.set("hbase.zookeeper.quorum", "server0,server1,server2")
     hbaseConf.set("hbase.zookeeper.property.clientPort", "2181")
-    SUELogger.warn("create connection")
+    CLogger.warn("create connection")
 
     val connection = ConnectionFactory.createConnection(hbaseConf)
     sys.addShutdownHook {
@@ -69,7 +69,7 @@ object HBaseUtil {
     val get = new Get(row.getBytes())
     val result = table.get(get)
     if (result.isEmpty) {
-      SUELogger.warn("hbase table don't have this data,execute insert")
+      CLogger.warn("hbase table don't have this data,execute insert")
       return false
     }
     true
