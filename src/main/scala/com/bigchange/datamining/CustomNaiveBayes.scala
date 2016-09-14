@@ -28,36 +28,37 @@ object CustomNaiveBayes {
     val dHMap = new mutable.HashMap[(String,String),Int]()
     val hMap = new mutable.HashMap[String,Int]()
     val dMap = new mutable.HashMap[String,Int]()
+
     data.foreach { x =>
       val index = x._1
       if( index != id) {
         x._2.foreach(y => y.split(" ").toList.toArray match {
           case Array(f1,f2,f3,f4,la) =>
-             Array(f1,f2,f3,f4).foreach(x => {
 
-               if(dHMap.contains((x,la))) {
-                dHMap.update((x,la),dHMap.get((x,la)).get + 1)
-               } else {
-                dHMap.put((x,la),1)
-               }
-               if(hMap.contains(x)) {
-                 hMap.update(x,hMap.get(x).get + 1)
-               } else {
-                 hMap.put(x,1)
-               }
-               if(dMap.contains(x)) {
-                 dMap.update(x,dMap.get(x).get + 1)
-               } else {
-                 dMap.put(x,1)
-               }
-            })
+            if(hMap.contains(la)) {
+              hMap.update(la,hMap(la) + 1)
+            } else {
+              hMap.put(la,1)
+            }
+
+           Array(f1,f2,f3,f4).foreach(x => {
+
+             if(dHMap.contains((x,la))) dHMap.update((x,la),dHMap((x, la)) + 1)
+             else {
+              dHMap.put((x,la),1)
+             }
+
+             if(dMap.contains(x)) {
+               dMap.update(x,dMap(x) + 1)
+             } else {
+               dMap.put(x,1)
+             }
+          })
         })
       }
     }
 
     (dHMap, hMap, dMap)
-
-
 
   }
 
@@ -65,18 +66,31 @@ object CustomNaiveBayes {
 
     var posb = 1.0
     // 计算先验概率P(h)
-    val listProb = new ListBuffer[Double]
+    val listProb = new ListBuffer[(String, Double)]
+
+    val totalH = modelNB._2.values.sum
+
     modelNB._2.foreach(h => {
-      posb = 1.0
+
       data.foreach(feature => {
         // D|h * h
-        posb *= modelNB._1.getOrElse((feature,h._1),0)
+        val value = modelNB._1.getOrElse((feature,h._1),0) /  ( h._2 * 1.0 )
+
+        println("value:" + value + "," + feature + "," + h._1 + "," + h._2)
+
+        posb *= value
+
       })
-      posb *= modelNB._2.get(h._1).get
-      listProb.+=(posb)
+
+      posb *= ( modelNB._2(h._1) / ( totalH * 1.0 ) )
+
+      listProb.+=((h._1,posb))
+
     })
 
     println("listProb:" + listProb)
+
+    listProb.sortWith(_._2 > _._2).head
   }
 
 }
