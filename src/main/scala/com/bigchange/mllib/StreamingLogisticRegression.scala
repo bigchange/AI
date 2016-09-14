@@ -18,17 +18,15 @@
 // scalastyle:off println
 package com.bigchange.mllib
 
-import com.bigchange.util.TimeUtil
-import com.bigchange.util.{TimeUtil, FileUtil}
+import com.bigchange.util.{FileUtil, TimeUtil}
+import org.apache.spark.SparkConf
+import org.apache.spark.mllib.classification.StreamingLogisticRegressionWithSGD
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.mllib.classification.StreamingLogisticRegressionWithSGD
-import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
-import com.bigchange.util.TimeUtil
-
 /**
+  * 逻辑回归： 数据为流式，训练数据为一个流； 测试数据为另一个流
  * Train a logistic regression model on one stream of data and make predictions
  * on another stream, where the data streams arrive as text files
  * into two different directories.

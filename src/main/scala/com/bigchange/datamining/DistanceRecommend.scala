@@ -1,6 +1,6 @@
 package com.bigchange.datamining
 
-import breeze.numerics.pow
+import breeze.numerics.{abs, pow, sqrt}
 import org.apache.spark.mllib.linalg.{SparseVector => SV}
 import org.apache.spark.rdd.RDD
 import org.jblas.DoubleMatrix
@@ -28,6 +28,41 @@ object DistanceRecommend {
       val ratings = x.slice(1,x.length - 1).filter(_ != "?").map(_.split(":")).map(x => new Rating(x(0),x(1).toDouble))
       (userName, ratings)
     }
+  }
+
+  // 标准化
+  def normalization(arr:Array[Double]): Array[Double] = {
+
+    val listBuffer = new ListBuffer[Double]
+    // 获取中位数
+    def getMedian(arr:Array[Double]): Double = {
+
+      val sortd = arr.toList.sortWith(_ < _).toArray
+      val len = arr.length
+      if(len % 2 == 1) {
+       sortd(len / 2)
+      } else {
+        (sortd(len / 2 - 1) + sortd(len / 2)) / 2
+      }
+    }
+    // 计算ads
+    def getAbsoluteStandardDeviation(array: Array[Double],median: Double): Double = {
+
+      var sum = 0.0
+      for (item <- array) {
+        sum += abs(item - median)
+      }
+      sum / array.length * 1.0
+    }
+
+    val median = getMedian(arr)
+    val ads = getAbsoluteStandardDeviation(arr, median)
+
+    for (item <- arr) {
+      listBuffer.+=((item - median) / ads)
+    }
+    listBuffer.toArray
+
   }
 
   // 计算曼哈顿距离
@@ -152,19 +187,141 @@ object DistanceRecommend {
 
   }
 
-  // val sc = SparkContext.getOrCreate(new SparkConf().setAppName("Test").setMaster("local"))
+  // 修正的余弦相似度
+  def fixedCosSimilarity(item1: String, item2: String, userList: Map[String,List[Rating]]): Double = {
 
-  // main 函数
-  def main(args: Array[String]) {
+    // 计算每个用户评分的均值
+    val average = userList.map(x => (x._1, x._2.map(_.value).sum / (x._2.size * 1.0)))
+    // println("average:" + average)
+    val userRatingItem = userList.map(x => (x._1, x._2.map(x => (x.item, x.value)).toMap)).toList
+    // 计算
+    var upNum = 0.0
+    var downX = 0.0
+    var downY = 0.0
+    userRatingItem.foreach(x =>
+      if(x._2.contains(item1) && x._2.contains(item2)) {
+        upNum +=((x._2(item1) - average(x._1)) * (x._2(item2) - average(x._1)))
+        downX += pow(x._2(item1) - average(x._1), 2.0)
+        downY += pow(x._2(item2) - average(x._1), 2.0)
+      }
+    )
 
-    val user1 = "Hailey,Broken Bells:4.0,Deadmau5:1.0,Norah Jones:4.0,The Strokes:4.0,Vampire Weekend:1.0"
-    val user2 = "Veronica,Blues Traveler:3.0,Norah Jones:5.0,Phoenix:4.0,Slightly Stoopid:2.5,The Strokes:3.0"
-    val userList = List(user1, user2)
+    val res = upNum / (sqrt(downX) * sqrt(downY)) * 1.0
 
-    // val userData = initial(sc.parallelize(userList))
-    // userList.foreach(println)
+    res
 
   }
 
+  // 预测用户user对物品item1的评分
+  def predictRating(user: String, item1: String, userList: Map[String,List[Rating]]): Double = {
+
+    // 所有的item
+    val allItem = userList.flatMap(x => x._2.map(_.item)).toList
+    //  计算item 与 item 物品相似度矩阵
+    val itemCosSimMap = new mutable.HashMap[(String, String),Double]()
+    allItem.foreach(x => allItem.foreach(y => if(x != y) itemCosSimMap.+=((x, y) -> fixedCosSimilarity(x, y, userList))))
+    // 修正用户评分到（-1 ~ 1）,目前评分系统是5分制
+    val max = 5
+    val min = 1
+    val userStandRating = userList(user).map(x => (x.item, (2 * (x.value - min) - (max - min)) / (max - min) * 1.0))
+    // 计算
+    var up = 0.0
+    var down = 0.0
+    val cal = userStandRating.foreach(x =>
+      if(x._1 != item1) {
+        up += x._2 * itemCosSimMap((x._1, item1))
+        down += abs(itemCosSimMap((x._1, item1)))
+      }
+    )
+    // println("up:down:" + up + "," + down  )
+    val res = up / down
+    println("预测评分:" + res)
+    // 转换到5星评价体系
+    (res + 1) * (max - min) / 2.0 + min
+
+  }
+
+  // slope One 算法: 关注有些差异值是不需要重新计算历史数据集，只需记录之前差值和记录同时评价过这对物品的用户数就可以了[逻辑暂时没有实现]
+  // 第一步item计算差值
+  def computeDeviations(item1: String, item2: String, userList: Map[String,List[Rating]]): Double = {
+
+    // 评分转为Map
+    val userRatingItem = userList.map(x => (x._1, x._2.map(x => (x.item, x.value)).toMap)).toList
+    //  计算item 与 item 差值
+    val itemDeviation = new mutable.HashMap[(String, String),Double]()
+    val userCount = new mutable.HashMap[(String, String),Int]()
+
+    userRatingItem.foreach { x =>
+
+      if(x._2.contains(item1) && x._2.contains(item2)) {
+
+        if(itemDeviation.contains((item1,item2))) {
+          itemDeviation.update((item1,item2), x._2(item1) - x._2(item2) + itemDeviation.get((item1,item2)).get)
+        } else {
+          itemDeviation.+=(((item1,item2),x._2(item1) - x._2(item2)))
+        }
+
+        if(userCount.contains((item1,item2))){
+          userCount.update((item1,item2),1 + userCount.get((item1,item2)).get)
+        } else {
+          userCount.+=(((item1,item2),1))
+        }
+      }
+    }
+
+    if(itemDeviation.contains((item1, item2)) && userCount.contains((item1, item2))) {
+      itemDeviation((item1, item2)) / userCount((item1, item2))
+    } else 0.0
+
+
+  }
+  // 加权的Slope One算法：推荐逻辑的实现
+  def slopeOneRecommendations(user: String, item1: String, userList: Map[String,List[Rating]]): Double = {
+    // 所有的item
+    val allItem = userList.flatMap(x => x._2.map(_.item)).toList
+    // 计算x,y 共同评分的用户
+    val userRatingItem = userList.map(x => (x._2.map(x => x.item), x._1)).toList
+    val userCount = new mutable.HashMap[(String, String),Int]()
+    allItem.foreach(x =>
+      allItem.foreach(y =>
+        userRatingItem.foreach(i =>{
+          if(i._1.contains(x) && i._1.contains(y)) {
+            if(userCount.contains((x,y))) {
+              userCount.update((x,y),1 + userCount.get((x,y)).get)
+            } else {
+              userCount.+=(((x,y),1))
+            }
+          }
+        })
+      ))
+
+    //  计算item 与 item 差值矩阵
+    val itemDeviMap = new mutable.HashMap[(String, String),Double]()
+    allItem.foreach(x =>
+      allItem.foreach(y =>
+       if(x != y) {
+         itemDeviMap.+=((x, y) -> computeDeviations(x, y, userList))
+       }
+      ))
+
+    println("itemDeviMap: " + itemDeviMap)
+
+    // 推荐
+    var up = 0.0
+    var down = 0.0
+    userList(user).foreach { x =>
+      val item = x.item
+      val value = x.value
+      if(item != item1) {
+        if(itemDeviMap.contains((item1, item)) && userCount.contains((item1, item))){
+          up += ((itemDeviMap((item1,item)) + value) * userCount((item1,item)))
+          down += userCount((item1,item))
+        }
+      }
+    }
+
+    up / down
+
+  }
 
 }

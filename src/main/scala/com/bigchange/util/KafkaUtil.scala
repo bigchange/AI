@@ -1,7 +1,7 @@
 package com.bigchange.util
 
 import com.bigchange.config.FileConfig
-import com.bigchange.log.SUELogger
+import com.bigchange.log.CLogger
 import kafka.serializer.StringDecoder
 import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
@@ -54,7 +54,7 @@ object KafkaUtil {
     val sc = ssc.sparkContext
 
     val text = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc,kafkaParams = Map[String,String]("metadata.broker.list" -> brokers,"group.id" -> "TelecomTest","zookeeper.connect" -> zkhosts,"serializer.class" -> "kafka.serializer.StringEncoder"),topics = topics.split(",").toSet)
-    SUELogger.warn("write data")
+    CLogger.warn("write data")
     val result = text.flatMap(x =>flatMapFun(x._2))
 
     /** write data to local file */
@@ -73,7 +73,7 @@ object KafkaUtil {
       })
     } catch {
       case e:Exception =>
-        SUELogger.error("save data error!!!!!!!!!!!!!!!!!!!!")
+        CLogger.error("save data error!!!!!!!!!!!!!!!!!!!!")
         System.exit(-1)
     }
     ssc.start()
