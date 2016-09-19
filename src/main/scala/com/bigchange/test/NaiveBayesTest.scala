@@ -4,6 +4,7 @@ import com.bigchange.datamining.CustomNaiveBayes
 import com.bigchange.datamining.CustomNaiveBayes.CNB
 
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 import scala.io.Source
 
 /**
@@ -38,8 +39,14 @@ object NaiveBayesTest {
     }
 
     // 分类
-    val choseModel:CNB = list.head._2
-    CustomNaiveBayes.predict(Array("health", "moderate", "moderate1", "yes"),choseModel)
+    val listP = new ListBuffer[(String, Double)]
+   list.foreach(x => {
+      println("model:" + x)
+      val pred = CustomNaiveBayes.predict(Array("health", "moderate", "moderate1", "yes"), x._2)
+     listP.+=(pred)
+    })
+    println("tobe:"+ listP)
+    println("tobe:"+ listP.max)
 
   }
 

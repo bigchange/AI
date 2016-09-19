@@ -10,7 +10,9 @@ import scala.collection.mutable.ListBuffer
 
 /**
   * Created by C.J.YOU on 2016/9/8.
+  * 一个推荐算法的核心部分(除了前期的数据清洗)
   */
+
 // item评分类
 case class Rating(item: String, value: Double)
 // 用户对item的评分
