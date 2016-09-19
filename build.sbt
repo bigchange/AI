@@ -45,6 +45,8 @@ libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.5.
 
 libraryDependencies += "org.jblas" % "jblas" % "1.2.3"
 
+libraryDependencies += "org.scalatest" % "scalatest_2.10" % "3.0.0"
+
 assemblyMergeStrategy in assembly := {
   case PathList("javax", "servlet", xs @ _*) => MergeStrategy.last
   case PathList("javax", "activation", xs @ _*) => MergeStrategy.last
