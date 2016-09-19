@@ -22,7 +22,7 @@ object CustomNaiveBayes {
     model
 
   }
-  // 不同数据训练的结果,id:Test数据集的id
+  // 不同数据训练的结果,id: 排除在外的Test数据集的id
   def model(id: Int,data: Map[Int,List[String]]): CNB = {
 
     val dHMap = new mutable.HashMap[(String,String),Int]()
