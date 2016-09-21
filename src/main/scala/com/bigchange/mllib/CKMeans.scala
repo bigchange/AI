@@ -37,6 +37,7 @@ object CKMeans {
     val (moviveMeans, userMeans) = (movieMatrixSummary.mean, userMatrixSummary.mean)
     val (movieVariance, userVariance) = (movieMatrixSummary.variance, userMatrixSummary.variance)
 
+    // k-means 训练
     val numClusters = 5
     val numIterator = 10
     val numRuns = 3
