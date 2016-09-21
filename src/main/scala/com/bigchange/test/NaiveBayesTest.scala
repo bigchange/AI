@@ -1,7 +1,6 @@
 package com.bigchange.test
 
 import com.bigchange.datamining.CustomNaiveBayes
-import com.bigchange.datamining.CustomNaiveBayes.CNB
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -40,7 +39,7 @@ object NaiveBayesTest {
 
     // 分类
     val listP = new ListBuffer[(String, Double)]
-   list.foreach(x => {
+    list.foreach(x => {
       println("model:" + x)
       val pred = CustomNaiveBayes.predict(Array("health", "moderate", "moderate1", "yes"), x._2)
      listP.+=(pred)
