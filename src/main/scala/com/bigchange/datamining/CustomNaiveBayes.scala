@@ -109,10 +109,11 @@ object CustomNaiveBayes {
 
 
   //  非结构化文本数据处理
-  """朴素贝叶斯分类器
+  /*"""朴素贝叶斯分类器
         dataDir 训练集目录，子目录是分类，子目录中包含若干文本
         stopWordsPath 停词列表（一行一个）
   """
+  */
 
   case class Prob(map:mutable.HashMap[String,AnyVal])
   case class Total(int: Int)
