@@ -1,0 +1,15 @@
+both sedentary moderate1 yes i100
+both sedentary moderate1 no i100
+health sedentary moderate1 yes i500
+appearance active moderate1 yes i500
+appearance moderate aggressive yes i500
+appearance moderate aggressive no i100
+health moderate aggressive no i500
+both active moderate1 yes i100
+both moderate aggressive yes i500
+appearance active aggressive yes i500
+both active aggressive no i500
+health active moderate1 no i500
+health sedentary aggressive yes i500
+appearance active moderate1 no i100
+health sedentary moderate1 no i100

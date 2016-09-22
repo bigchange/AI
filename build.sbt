@@ -23,27 +23,29 @@ libraryDependencies += "org.apache.hbase" % "hbase-it" % "1.1.2"
 
 libraryDependencies += "org.apache.spark" % "spark-core_2.10" % "1.5.2" % "provided"
 
-libraryDependencies += "org.apache.spark" % "spark-mllib_2.10" % "1.5.2"
+libraryDependencies += "org.apache.spark" % "spark-mllib_2.10" % "1.5.2" exclude("org.jboss.netty", "netty")
 
-libraryDependencies += "org.apache.spark" % "spark-sql_2.10" % "1.5.2"
+libraryDependencies += "org.apache.spark" % "spark-sql_2.10" % "1.5.2" exclude("org.jboss.netty", "netty")
 
-libraryDependencies += "org.apache.spark" % "spark-hive_2.10" % "1.5.2"
+libraryDependencies += "org.apache.spark" % "spark-hive_2.10" % "1.5.2" exclude("org.jboss.netty", "netty")
 
-libraryDependencies += "org.apache.spark" % "spark-graphx_2.10" % "1.5.2"
+libraryDependencies += "org.apache.spark" % "spark-graphx_2.10" % "1.5.2" exclude("org.jboss.netty", "netty")
 
 libraryDependencies += "redis.clients" % "jedis" % "2.8.0"
 
 libraryDependencies += "com.ning" % "async-http-client" % "1.7.16"
 
-libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.10" % "0.11.0"
+libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.10" % "0.11.0" exclude("org.jboss.netty", "netty")
 
-libraryDependencies += "org.json" % "json" % "20140107"
+libraryDependencies += "org.json" % "json" % "20140107" exclude("org.jboss.netty", "netty")
 
-libraryDependencies += "org.apache.spark" % "spark-streaming_2.10" % "1.5.2"
+libraryDependencies += "org.apache.spark" % "spark-streaming_2.10" % "1.5.2" exclude("org.jboss.netty", "netty")
 
-libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.5.2"
+libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.5.2" exclude("org.jboss.netty", "netty")
 
 libraryDependencies += "org.jblas" % "jblas" % "1.2.3"
+
+libraryDependencies += "org.scalatest" % "scalatest_2.10" % "3.0.0"
 
 assemblyMergeStrategy in assembly := {
   case PathList("javax", "servlet", xs @ _*) => MergeStrategy.last

@@ -6,7 +6,7 @@ import java.util.zip.{GZIPInputStream, DeflaterOutputStream, InflaterOutputStrea
 import javax.crypto.{SecretKeyFactory, Cipher}
 import javax.crypto.spec.DESKeySpec
 
-import com.bigchange.log.SUELogger
+import com.bigchange.log.CLogger
 import org.json.JSONObject
 import sun.misc.{BASE64Encoder, BASE64Decoder}
 
@@ -129,7 +129,7 @@ object StringUtil {
       result = ts + "\t" + ad + "\t" + ua + "\t" + hostAndUrl + "\t" + ref + "\t" +cookie
     } catch {
       case e:Exception  =>
-        SUELogger.error("praseJsonObject ERROR")
+        CLogger.error("praseJsonObject ERROR")
     }
     result
   }
