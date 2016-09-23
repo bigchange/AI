@@ -103,6 +103,11 @@ K-折叠交叉验证
 
 3. 层次聚类： 凝聚聚类、 分裂式聚类
 
+## 数据降维 ##
+
+1. 降维方法的种类： PCA(Principal Components Analysis， 主成分析法) 和 SVD(Singular Value Decomposition， 奇异值分解发)
+
+
 
 
 
