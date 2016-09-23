@@ -93,7 +93,7 @@ object CKMeans {
     println("Movie clustering cross-validation:")
     // 不同排序的方法
     // costMovies.sortWith(_._2 < _._2).take(3).foreach(_)
-    costMovies.sortBy(_._2).reverse.take(3).foreach(_)
+    costMovies.sortBy(_._2).reverse.take(3)
 
   }
 
