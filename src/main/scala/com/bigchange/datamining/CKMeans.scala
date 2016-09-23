@@ -79,6 +79,22 @@ object CKMeans {
 
     // 用户特征向量：计算每个离中心用户近的，根据他们的打分或者其他可用的元数据，发现这些用户的共同之处
 
+    // 评估聚类模型： 内部评估和外部评估两种
+    // 内部评估： WCSS(K-元件目标函数)
+    val movieCost = movieClusterModel.computeCost(movieVectors)
+    val userCost = userClusterModel.computeCost(userVectors)
+    println("WCSS for movies:" + movieCost)
+
+    // 通过交叉验证的方法调整模型参数K
+    val trainTestSplitMovies = movieVectors.randomSplit(Array(0.6, 0.4), seed = 123)
+    val trainMovies = trainTestSplitMovies(0)
+    val testMovies = trainTestSplitMovies(1)
+    val costMovies = Seq(2, 3, 4, 5, 10, 20).map { k => ("K=" + k, KMeans.train(trainMovies, k, numIterator, numRuns).computeCost(testMovies)) }
+    println("Movie clustering cross-validation:")
+    // 不同排序的方法
+    // costMovies.sortWith(_._2 < _._2).take(3).foreach(_)
+    costMovies.sortBy(_._2).reverse.take(3).foreach(_)
+
   }
 
   // 一般数据的模型训练
