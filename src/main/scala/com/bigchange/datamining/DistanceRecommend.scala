@@ -177,7 +177,7 @@ object DistanceRecommend {
           if(!recommendRatingCompute.contains(y.item)) {
             recommendRatingCompute.+=((y.item, y.value * x._2))
           } else {
-            recommendRatingCompute.update(y.item, recommendRatingCompute.get(y.item).get + y.value * x._2)
+            recommendRatingCompute.update(y.item, recommendRatingCompute(y.item) + y.value * x._2)
           }
         }
       })
@@ -206,7 +206,7 @@ object DistanceRecommend {
       }
     )
 
-    val res = upNum / (sqrt(downX) * sqrt(downY)) * 1.0
+    val res = upNum / (sqrt(downX) * sqrt(downY) * 1.0)
 
     res
 
