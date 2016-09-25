@@ -11,6 +11,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 /**
   * Created by C.J.YOU on 2016/9/23.
+  * 降维模型
   * 数据降维： 使用人脸识别为实例
   */
 object LabeledFaces {
@@ -84,7 +85,10 @@ object LabeledFaces {
     // 确定PCA映射后的低维空间值和SVD的映射值每行是否一样
     projected.rows.zip(projectedSVD).map{ case (v1, v2) => approxEqual(v1.toArray, v2.toArray) }.filter(b => b).count()
 
+    //
   }
+
+
   // 彩色图片： 三维像素数组或矩阵，（x, y, RGB三元色的值），灰度图片：每个像素只需要一个值表示。
   // pic load: BufferedImage@616893c7: type = 5 ColorModel: #pixelBits = 24 numComponents = 3 color space = java.awt.color.ICC_ColorSpace@18be1fc7 transparency = 1 has alpha = false isAlphaPre = false ByteInterleavedRaster: width = 250 height = 250 #numDataElements 3 dataOff[0] = 2
   def loadImageFromFile(path:String) = ImageIO.read(new File(path))
