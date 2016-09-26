@@ -1,8 +1,5 @@
 package com.bigchange.test
 
-import java.io.File
-
-import breeze.linalg.DenseMatrix
 import com.bigchange.mllib.LabeledFaces
 import org.apache.spark.mllib.feature.StandardScaler
 import org.apache.spark.mllib.linalg.Vectors
@@ -42,9 +39,10 @@ object TestLabeledFaces {
 
     // 估计聚类的k值，以一个较大的k变化范围绘制一个奇异值图，看看每增加一个奇异值的变化总量是否保持基本不变
     val svd300 = matrix.computeSVD(300, computeU =  false)
-    val sMatrix = new DenseMatrix(1, 300, svd300.s.toArray)
 
-    /*import   breeze.linalg.csvwrite
+
+    /*val sMatrix = new DenseMatrix(1, 300, svd300.s.toArray)
+    import   breeze.linalg.csvwrite
     csvwrite(new File("/tmp/csv"), sMatrix)
     // 通过IPython 画图可以清楚看到
     s = np.loadtext("/tmp/csv", delimiter = "")
