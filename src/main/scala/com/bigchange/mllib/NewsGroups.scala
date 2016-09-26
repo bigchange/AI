@@ -115,6 +115,8 @@ object NewsGroups {
 
     val model = NaiveBayes.train(trainData, lambda =  0.1 )
 
+    // model.save(sc, path = "file:///F:/SmartData-X/DataSet/20news-bydate/nbmodel")
+
     // TestData 预处理
     val testPath = "file:///F:/SmartData-X/DataSet/20news-bydate/20news-bydate-test/*/*"
     val testRdd = sc.wholeTextFiles(testPath)
@@ -137,7 +139,7 @@ object NewsGroups {
 
     val metrics = new MulticlassMetrics(predictionAndLabels)
     println("accuracy:" + accuracy)
-    println("加权F-指标：" + metrics.weightedFMeasure)
+    println("加权F-指标：" + metrics.weightedFMeasure) // 加权F-指标：0.781142389463205
 
   }
 
