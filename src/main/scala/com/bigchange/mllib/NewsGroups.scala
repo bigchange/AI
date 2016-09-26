@@ -141,6 +141,7 @@ object NewsGroups {
     println("accuracy:" + accuracy)
     println("加权F-指标：" + metrics.weightedFMeasure) // 加权F-指标：0.781142389463205
 
+
   }
 
 }
