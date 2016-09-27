@@ -13,6 +13,7 @@ import scala.io.Source
 /**
   * Created by CHAOJIANG on 2016/9/25 0025.
   * 新闻数据中提取TF-IDF特征的实例
+  * 贝叶斯多标签分类器
   */
 object NewsGroups {
 
