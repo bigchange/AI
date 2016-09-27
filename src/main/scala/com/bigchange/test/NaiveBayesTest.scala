@@ -22,7 +22,8 @@ object NaiveBayesTest {
 
     // val Array(dataPath) = args
     val data = Source.fromFile("src/main/resources/nbData/i100-i500").getLines().toList
-
+    // 可实现打完包后读取jar包中对应文件数据
+    val data2 = Source.fromInputStream(this.getClass.getResourceAsStream("src/main/resources/nbData/i100-i500")).getLines().toList
     // 十折交叉验证(index,List(item1,item2))
     val splitData  = data.zipWithIndex.map(x => (x._2 % 10,x._1)).groupBy(_._1).mapValues(x => x.map(_._2))
     val modelMap = new mutable.HashMap[Int,String]()
