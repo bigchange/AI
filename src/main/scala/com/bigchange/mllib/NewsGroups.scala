@@ -3,9 +3,10 @@ package com.bigchange.mllib
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.mllib.classification.NaiveBayes
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
-import org.apache.spark.mllib.feature.{HashingTF, IDF}
+import org.apache.spark.mllib.feature.{HashingTF, IDF, Word2Vec}
 import org.apache.spark.mllib.linalg.SparseVector
 import org.apache.spark.mllib.regression.LabeledPoint
+import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.io.Source
@@ -55,21 +56,41 @@ object NewsGroups {
     val tokenCountsFilteredBro = sc.broadcast(tokenCountsFiltered)
     tokenFiltered = tokenCountsFilteredBro
 
-    // 每篇分词
-    def tokenizer(line: String) = {
-
-      line.split("""\W+""").map(_.toLowerCase)
-        .filter(token => """[^0-9]*""".r.pattern.matcher(token).matches)
-        .filterNot(token => swl.value.contains(token) || tokenFiltered.value.contains(token))
-        .filter(token => token.length >= 2 )
-        .toSeq
-
-    }
-
     // 提取词干： 复杂（walking，walker -> walk）, 可以通过标准的NLP方法或者搜索引擎软件实现（NLTK, OpenNLP，Lucene）
 
     val tokens = text.map(doc => tokenizer(doc))
 
+    // 使用TF-IDF处理文本
+    // val tFIDF = TFIDFModel(rdd, tokens)
+
+    val word2Vec = word2VecModel(tokens)
+
+
+  }
+
+  // Word2Vec 词项模型
+  def word2VecModel(tokens:RDD[Seq[String]]) = {
+
+    val word2Vec = new Word2Vec().setSeed(42) // 随机种子作为模型训练参数
+    val word2VecModel = word2Vec.fit(tokens)
+    // 获取相似单词
+    word2VecModel.findSynonyms("hockey", 20).foreach(println)
+
+  }
+
+  // 每篇分词
+  def tokenizer(line: String) = {
+
+    line.split("""\W+""").map(_.toLowerCase)
+      .filter(token => """[^0-9]*""".r.pattern.matcher(token).matches)
+      .filterNot(token => swl.value.contains(token) || tokenFiltered.value.contains(token))
+      .filter(token => token.length >= 2 )
+      .toSeq
+
+  }
+
+  // TF-IDF 词项模型
+  def TFIDFModel(rdd:RDD[(String, String)],tokens:RDD[Seq[String]]) = {
 
     // 处理成词项形式的文档以向量形式表达： HashingTF - 特征hash把输入的文本的词项映射为词频向量的下标
     // 维度参数
@@ -141,7 +162,6 @@ object NewsGroups {
     val metrics = new MulticlassMetrics(predictionAndLabels)
     println("accuracy:" + accuracy)
     println("加权F-指标：" + metrics.weightedFMeasure) // 加权F-指标：0.781142389463205
-
 
   }
 
