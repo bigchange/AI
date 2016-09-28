@@ -27,6 +27,11 @@ object FileUtil {
     }
   }
   def writeToFile(path: String, array:Array[String]): Unit = {
+
+    val file = new File(path)
+    if(file.exists()) {
+      file.delete()
+    }
     val out = new FileOutputStream(new File(path),true)
     val writer = new PrintWriter(out, false)
     for (arr <- array){
