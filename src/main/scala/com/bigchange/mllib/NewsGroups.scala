@@ -151,6 +151,7 @@ object NewsGroups {
 
     println("newsGroupsMap: " + newsGroupsMap)
 
+    // 两个RDD中元素的对应起来
     val zipped = newsGroups.zip(tfidf)
 
     val trainData = zipped.map { case (topic, vector) => LabeledPoint(newsGroupsMap(topic), vector)}
