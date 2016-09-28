@@ -20,7 +20,7 @@ object LabeledFaces {
 
   def main(args: Array[String]) {
 
-   val path = "file:///E:/github/lfw/Aaron_Eckhart/*"
+   val path = "file:///E:/github/lfw/*/*"
     // 允许一次性操作整个文件，不同于之前的在一个文件或多个文件中只能逐行处理
     val rdd = sc.wholeTextFiles(path).map { case (fileName, content) => fileName.replace("file:/","") }
 
