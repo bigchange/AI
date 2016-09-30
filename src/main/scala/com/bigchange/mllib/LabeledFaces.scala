@@ -58,10 +58,12 @@ object LabeledFaces {
     val projected = matrix.multiply(pca) // 另一个机器模型的数据输入
 
     // SVD 和 PCA 的关系
-    val svd = matrix.computeSVD(k, computeU = true)
+    val svd = matrix.computeSVD(matrix.numCols().toInt, computeU = true)
     val U = svd.U //
     val S = svd.s // 奇异值向量
     val v = svd.V // 右奇异值向量 （注意观察和PCA计算出来的低维空间对比）
+
+    // svd 一个良好性质是在它的返回值U中，特征向量是按照特征值的大小排列的。我们可以利用这个性质来对数据降维，只要使用前面的小部分特征向量，丢弃掉那些包含的数据没有方差的维度。 这个操作也被称为主成分分析（ Principal Component Analysis 简称PCA）降维
 
     // 比较结果是否在容忍的误差范围之内
     def approxEqual(array1: Array[Double], array2: Array[Double], tolerance: Double = 1e-6) = {
