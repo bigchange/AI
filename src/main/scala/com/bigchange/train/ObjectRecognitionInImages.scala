@@ -5,10 +5,11 @@ import java.io.File
 import javax.imageio.ImageIO
 
 import com.bigchange.util.FileUtil
-import org.apache.spark.mllib.classification.{NaiveBayes, NaiveBayesModel}
+import org.apache.spark.mllib.classification.{LogisticRegressionWithLBFGS, _}
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.feature.StandardScaler
 import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.linalg.distributed.RowMatrix
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
@@ -21,90 +22,49 @@ import scala.collection.mutable
   */
 object ObjectRecognitionInImages {
 
-    val sc = SparkContext.getOrCreate(new SparkConf().setAppName("ORII").setMaster("local"))
+    val sc = SparkContext.getOrCreate(new SparkConf().setAppName("CIFAR-10").setMaster("local"))
 
     def main(args: Array[String]) {
 
-     /* new File("E:\\github\\lfw-test").listFiles().foreach { x =>
-        x.listFiles().foreach { file =>
-          val n = file.getAbsolutePath.replace("\\","/").split("/").takeRight(1).head
-          file.renameTo(new File("E:/github/lfw-testfile/" + n))
+      val data = sc.textFile("file:///F:/SmartData-X/DataSet/CIFAR-10/data/train/*").map(_.split("\t")).map { x =>
+        val label = x(0).toDouble
+        val vector = x.slice(1, x.length).map(_.toDouble)
+        (label, Vectors.dense(vector))
+      }
+
+      data.setName("image-vectors") // web 界面方便识别
+      data.cache()
+
+
+      val splitData = data.randomSplit(Array(0.8, 0.2))
+
+      val trainS = splitData(0)
+      val testS = splitData(1)
+
+      val trainDataV = deduceFeatures(trainS.map(_._2))
+      val trainDataL = trainS.map(_._1)
+      val testDataV = deduceFeatures(testS.map(_._2))
+      val testDataL = testS.map(_._1)
+
+      val  trainData = trainDataL.zip(trainDataV).map { case (l,v) => LabeledPoint(l, v)}
+      val  testData = testDataL.zip(testDataV).map { case (l,v) => LabeledPoint(l, v)}
+
+      var modelMap: mutable.HashMap[Double,LogisticRegressionModel] = null
+
+      var lowLoss = Double.MinValue
+
+      Array(1).foreach { stepSize =>
+        println("lambda:" + stepSize)
+        val model = new LogisticRegressionWithLBFGS().setNumClasses(10)
+          .run(trainData)
+        val measured = test(model, testData)
+        if(measured > lowLoss) {
+          lowLoss = measured
+          modelMap.+=((measured, model))
         }
       }
-      println("over,<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<")*/
-
-      // 允许一次性操作整个文件，不同于之前的在一个文件或多个文件中只能逐行处理
-      val rdd = sc.wholeTextFiles("file:///E:/github/lfw-train/*").map { case (fileName, content) => fileName.replace("file:/", "") }
-
-      val label = rdd.map { x =>
-        val arr = x.split("/").takeRight(1).head.split("_")
-        arr.slice(0,arr.length - 1).mkString("_")
-      }
-
-      // label.foreach(println)
-
-      val labeledMap = label.zipWithIndex().collectAsMap().asInstanceOf[mutable.HashMap[String,Long]]
-
-      val labeledMapRDD = sc.parallelize(labeledMap.toSeq)
-
-      val r = labeledMapRDD.map(x => x._1 +"\t" + x._2).collect()
-
-      // FileUtil.writeToFile("E:/github/lfw-labeledMap", r)
-      // labeledMapRDD.saveAsTextFile("hdfs://61.147.114.85:9000/user/youchaojiang/lfw-labelMap")
-
-      val pixels = rdd.map { f => extractPixels(f, 30 , 30) }
-
-      // 为每张图片创建向量对象
-      val vectors = pixels.map { x => Vectors.dense(x) }
-      vectors.setName("image-vectors") // web 界面方便识别
-      vectors.cache()
-
-      // 正则化
-      val scaler = new StandardScaler(withMean = true, withStd = false).fit(vectors) // 提取mean
-      val scaledVectors = vectors.map { v => scaler.transform(v) } // 向量减去当前列的平均值
-
-      val zipped = label.zip(vectors)
-
-      val trainData = zipped.map { case (key, vector) => LabeledPoint(labeledMap(key), vector)}
-
-      val model = NaiveBayes.train(trainData, lambda =  0.1 )
-
-      // model.save(sc,"hdfs://61.147.114.85:9000/user/youchaojiang/lfw-model2")
-      // model.save(sc,"E:/github/lfw-model")
-      // TestData
-      // 允许一次性操作整个文件，不同于之前的在一个文件或多个文件中只能逐行处理
-      val testRDD = sc.wholeTextFiles("file:///E:/github/lfw-test/*").map { case (fileName, content) => fileName.replace("file:/", "") }
-
-      val testLabel = testRDD.map { x =>
-        val arr = x.split("/").takeRight(1).head.split("_")
-        arr.slice(0,arr.length - 1).mkString("_")
-      }
-
-      val testPixels = testRDD.map { f => extractPixels(f, 30 , 30) }
-
-      // 为每张图片创建向量对象
-      val testVectors = testPixels.map { x => Vectors.dense(x) }
-      testVectors.setName("image-test-vectors") // web 界面方便识别
-      testVectors.cache()
-
-      // 正则化
-      val testScaler = new StandardScaler(withMean = true, withStd = false).fit(testVectors) // 提取mean
-      val testScaledVectors = testVectors.map { v => testScaler.transform(v) } // 向量减去当前列的平均值
-
-      val zippedTest = testLabel.zip(testVectors)
-
-      val test = zippedTest.map {  case (key, vector) => LabeledPoint(labeledMap(key), vector)}
-
-      val predictionAndLabels = test.map(p => (model.predict(p.features), p.label))
-
-      val labeledMapReverse = labeledMapRDD.map(x =>(x._2, x._1)).collectAsMap()
-
-      val result = predictionAndLabels.filter(x => x._1 != x._2).map(x=> (x._1.toLong, x._2.toLong)).map(x => (labeledMapReverse(x._1),labeledMapReverse(x._2))).map(x => x._1 + "\t" + x._2).collect()
-
-      FileUtil.writeToFile("E:/github/lfw-result",result)
-
-      val metrics = new MulticlassMetrics(predictionAndLabels)
-      println("加权F-指标：" + metrics.weightedFMeasure) // 加权F-指标：0.781142389463205
+       modelMap(lowLoss).save(sc,"hdfs://61.147.114.85:9000/user/youchaojiang/model_CIFAR-10")
+       // model.save(sc,"E:/github/lfw-model")
 
       // 比较结果是否在容忍的误差范围之内
       def approxEqual(array1: Array[Double], array2: Array[Double], tolerance: Double = 1e-6) = {
@@ -117,8 +77,29 @@ object ObjectRecognitionInImages {
 
 
     }
+    // PCA
+    def deduceFeatures(tempData: RDD[org.apache.spark.mllib.linalg.Vector]) = {
 
-    // 测试集评估模型
+      val rowMatrix = new RowMatrix(tempData)
+      val pca = rowMatrix.computePrincipalComponents(144)
+      val reflect = rowMatrix.multiply(pca)
+
+      val deducedFeatures = reflect.rows
+
+      deducedFeatures
+    }
+
+    // label 和 feature 可同时获得的时候
+    def test(model: LogisticRegressionModel, testData:RDD[LabeledPoint]) = {
+
+      val predictionAndLabels = testData.map(p => (model.predict(p.features), p.label))
+      val metrics = new MulticlassMetrics(predictionAndLabels)
+      println("加权F-指标：" + metrics.weightedFMeasure) // 加权F-指标：0.781142389463205
+      metrics.weightedFMeasure
+
+    }
+
+    // 测试集评估模型 : label 和 feature 分开的时候
     def test(model: NaiveBayesModel, testPixels:RDD[Array[Double]], testLabel: RDD[String], labeledMap: mutable.HashMap[String,Long]) = {
 
       // 为每张图片创建向量对象

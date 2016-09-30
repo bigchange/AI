@@ -34,7 +34,7 @@ object LabeledFaces {
     vectors.setName("image-vectors") // web 界面方便识别
     vectors.cache()
 
-    // 正则化
+    // 正则化（均值减法处理）
     val scaler = new StandardScaler(withMean = true, withStd = false).fit(vectors) // 提取mean
     val scaledVectors = vectors.map { v => scaler.transform(v) } // 向量减去当前列的平均值
 

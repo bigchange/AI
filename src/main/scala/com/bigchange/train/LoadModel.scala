@@ -5,10 +5,11 @@ import java.io.File
 import javax.imageio.ImageIO
 
 import com.bigchange.util.FileUtil
-import org.apache.spark.mllib.classification.NaiveBayesModel
+import org.apache.spark.mllib.classification.LogisticRegressionModel
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.feature.StandardScaler
 import org.apache.spark.mllib.linalg.Vectors
+import org.apache.spark.mllib.linalg.distributed.RowMatrix
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
@@ -25,27 +26,46 @@ object LoadModel {
 
   def main(args: Array[String]) {
 
-    val model = NaiveBayesModel.load(sc, "hdfs://61.147.114.85:9000/user/youchaojiang/lfw-model2")
+    val model = LogisticRegressionModel.load(sc, "hdfs://61.147.114.85:9000/user/youchaojiang/model_CIFAR-10")
 
-    // label.foreach(println)
-
-    val labeledMap = sc.textFile("E:/github/lfw-labeledMap").map(x => (x.split("\t")(0),x.split("\t")(1).toLong)).collectAsMap().asInstanceOf[mutable.HashMap[String,Long]]
-
-    // TestData
-    // 允许一次性操作整个文件，不同于之前的在一个文件或多个文件中只能逐行处理
-    val fileRdd = sc.wholeTextFiles("file:///E:/github/lfw-test/*").map { case (fileName, content) => fileName.replace("file:/", "") }
-
-    val testLabel = fileRdd.map { x =>
-      val arr = x.split("/").takeRight(1).head.split("_")
-      arr.slice(0,arr.length - 1).mkString("_")
+    val data = sc.textFile("file:///F:/SmartData-X/DataSet/CIFAR-10/data/test/*").map(_.split("\t")).map { x =>
+      val label = x(0).toDouble
+      val vector = x.slice(1, x.length).map(_.toDouble)
+      (label, Vectors.dense(vector))
     }
-    val testRDD = fileRdd.map { f => extractPixels(f, 30 , 30) }
 
-    test(model, testRDD, testLabel, labeledMap)
+    val testDataV = deduceFeatures(data.map(_._2))
+    val testDataL = data.map(_._1)
+
+    val  testData = testDataL.zip(testDataV).map { case (l,v) => LabeledPoint(l, v)}
+
+    test(model, testData)
+
+  }
+  // PCA
+  def deduceFeatures(tempData: RDD[org.apache.spark.mllib.linalg.Vector]) = {
+
+    val rowMatrix = new RowMatrix(tempData)
+    val pca = rowMatrix.computePrincipalComponents(144)
+    val reflect = rowMatrix.multiply(pca)
+
+    val deducedFeatures = reflect.rows
+
+    deducedFeatures
+  }
+
+
+  def test(model: LogisticRegressionModel, testData:RDD[LabeledPoint]) = {
+
+    val predictionAndLabels = testData.map(p => (model.predict(p.features), p.label))
+    val metrics = new MulticlassMetrics(predictionAndLabels)
+    println("precision:" + metrics.precision)
+    println("加权F-指标：" + metrics.weightedFMeasure) // 加权F-指标：0.781142389463205
 
   }
 
-  def test(model: NaiveBayesModel, testPixels:RDD[Array[Double]], testLabel: RDD[String], labeledMap: mutable.HashMap[String,Long]) = {
+  // label 和 feature 分开的时候
+  def test(model: LogisticRegressionModel, testPixels:RDD[Array[Double]], testLabel: RDD[String], labeledMap: mutable.HashMap[String,Long]) = {
 
     // 为每张图片创建向量对象
     val testVectors = testPixels.map { x => Vectors.dense(x) }
