@@ -5,7 +5,7 @@ import java.io.File
 import javax.imageio.ImageIO
 
 import com.bigchange.util.FileUtil
-import org.apache.spark.mllib.classification.LogisticRegressionModel
+import org.apache.spark.mllib.classification.NaiveBayesModel
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.feature.StandardScaler
 import org.apache.spark.mllib.linalg.Vectors
@@ -26,7 +26,7 @@ object LoadModel {
 
   def main(args: Array[String]) {
 
-    val model = LogisticRegressionModel.load(sc, "hdfs://61.147.114.85:9000/user/youchaojiang/model_CIFAR-10")
+    val model = NaiveBayesModel.load(sc, "hdfs://61.147.114.85:9000/user/youchaojiang/model_CIFAR-10")
 
     val data = sc.textFile("file:///F:/SmartData-X/DataSet/CIFAR-10/data/test/*").map(_.split("\t")).map { x =>
       val label = x(0).toDouble
@@ -34,10 +34,7 @@ object LoadModel {
       (label, Vectors.dense(vector))
     }
 
-    val testDataV = deduceFeatures(data.map(_._2))
-    val testDataL = data.map(_._1)
-
-    val  testData = testDataL.zip(testDataV).map { case (l,v) => LabeledPoint(l, v)}
+    val  testData = data.map { case (l,v) => LabeledPoint(l, v)}
 
     test(model, testData)
 
@@ -55,17 +52,20 @@ object LoadModel {
   }
 
 
-  def test(model: LogisticRegressionModel, testData:RDD[LabeledPoint]) = {
+  def test(model: NaiveBayesModel, testData:RDD[LabeledPoint]) = {
 
+    val labeledMapReverse = sc.textFile("F:/SmartData-X/DataSet/CIFAR-10/data/batches.meta").map(_.split("\t")).map(x => x(0).toDouble -> x(1)).collectAsMap()
     val predictionAndLabels = testData.map(p => (model.predict(p.features), p.label))
+    val result = predictionAndLabels.filter(x => x._1 != x._2).map(x=> (x._1.toLong, x._2.toLong)).map(x => (labeledMapReverse(x._1),labeledMapReverse(x._2))).map(x => x._1 + "\t" + x._2).collect()
+    FileUtil.writeToFile("E:/github/CIFAR-10",result)
     val metrics = new MulticlassMetrics(predictionAndLabels)
     println("precision:" + metrics.precision)
-    println("加权F-指标：" + metrics.weightedFMeasure) // 加权F-指标：0.781142389463205
+    println("加权F-指标：" + metrics.weightedFMeasure) // 0.28
 
   }
 
   // label 和 feature 分开的时候
-  def test(model: LogisticRegressionModel, testPixels:RDD[Array[Double]], testLabel: RDD[String], labeledMap: mutable.HashMap[String,Long]) = {
+  def test(model: NaiveBayesModel, testPixels:RDD[Array[Double]], testLabel: RDD[String], labeledMap: mutable.HashMap[String,Long]) = {
 
     // 为每张图片创建向量对象
     val testVectors = testPixels.map { x => Vectors.dense(x) }
@@ -87,10 +87,9 @@ object LoadModel {
 
     val result = predictionAndLabels.filter(x => x._1 != x._2).map(x=> (x._1.toLong, x._2.toLong)).map(x => (labeledMapReverse(x._1),labeledMapReverse(x._2))).map(x => x._1 + "\t" + x._2).collect()
 
-    FileUtil.writeToFile("E:/github/lfw-result",result)
+    FileUtil.writeToFile("E:/github/CIFAR-10",result)
 
     val metrics = new MulticlassMetrics(predictionAndLabels)
-    println("precision:" + metrics.precision)
     println("加权F-指标：" + metrics.weightedFMeasure) // 加权F-指标：0.781142389463205
 
   }

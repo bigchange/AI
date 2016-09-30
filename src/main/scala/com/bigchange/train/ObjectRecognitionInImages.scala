@@ -5,7 +5,7 @@ import java.io.File
 import javax.imageio.ImageIO
 
 import com.bigchange.util.FileUtil
-import org.apache.spark.mllib.classification.{LogisticRegressionWithLBFGS, _}
+import org.apache.spark.mllib.classification._
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.feature.StandardScaler
 import org.apache.spark.mllib.linalg.Vectors
@@ -40,30 +40,23 @@ object ObjectRecognitionInImages {
 
       val trainS = splitData(0)
       val testS = splitData(1)
-
-      val trainDataV = deduceFeatures(trainS.map(_._2))
+      // PCA
+      /*val trainDataV = deduceFeatures(trainS.map(_._2))
       val trainDataL = trainS.map(_._1)
       val testDataV = deduceFeatures(testS.map(_._2))
       val testDataL = testS.map(_._1)
 
       val  trainData = trainDataL.zip(trainDataV).map { case (l,v) => LabeledPoint(l, v)}
-      val  testData = testDataL.zip(testDataV).map { case (l,v) => LabeledPoint(l, v)}
+      val  testData = testDataL.zip(testDataV).map { case (l,v) => LabeledPoint(l, v)}*/
 
-      var modelMap: mutable.HashMap[Double,LogisticRegressionModel] = null
+      var modelMap: mutable.HashMap[Double,NaiveBayesModel] = null
 
       var lowLoss = Double.MinValue
 
-      Array(1).foreach { stepSize =>
-        println("lambda:" + stepSize)
-        val model = new LogisticRegressionWithLBFGS().setNumClasses(10)
-          .run(trainData)
-        val measured = test(model, testData)
-        if(measured > lowLoss) {
-          lowLoss = measured
-          modelMap.+=((measured, model))
-        }
-      }
-       modelMap(lowLoss).save(sc,"hdfs://61.147.114.85:9000/user/youchaojiang/model_CIFAR-10")
+      val model = NaiveBayes.train(trainS.map{ case (l,v) => LabeledPoint(l, v) }, 0.1)
+      val measured = test(model, testS.map{ case (l,v) => LabeledPoint(l, v) })
+
+      model.save(sc,"hdfs://61.147.114.85:9000/user/youchaojiang/model_CIFAR-10")
        // model.save(sc,"E:/github/lfw-model")
 
       // 比较结果是否在容忍的误差范围之内
@@ -90,12 +83,12 @@ object ObjectRecognitionInImages {
     }
 
     // label 和 feature 可同时获得的时候
-    def test(model: LogisticRegressionModel, testData:RDD[LabeledPoint]) = {
+    def test(model: NaiveBayesModel, testData:RDD[LabeledPoint]) = {
 
       val predictionAndLabels = testData.map(p => (model.predict(p.features), p.label))
       val metrics = new MulticlassMetrics(predictionAndLabels)
-      println("加权F-指标：" + metrics.weightedFMeasure) // 加权F-指标：0.781142389463205
-      metrics.weightedFMeasure
+      println("指标：" + metrics.fMeasure)
+      metrics.fMeasure
 
     }
 
@@ -126,7 +119,7 @@ object ObjectRecognitionInImages {
 
       val metrics = new MulticlassMetrics(predictionAndLabels)
       println("precision:" + metrics.precision)
-      println("加权F-指标：" + metrics.weightedFMeasure) // 加权F-指标：0.781142389463205
+      println("加权F-指标：" + metrics.weightedFMeasure) // 加权F-指标：0.28
 
     }
 
