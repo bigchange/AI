@@ -46,7 +46,17 @@ libraryDependencies += "org.apache.spark" % "spark-streaming-kafka_2.10" % "1.5.
 libraryDependencies += "org.jblas" % "jblas" % "1.2.3"
 
 // https://mvnrepository.com/artifact/org.deeplearning4j/dl4j-caffe
-libraryDependencies += "org.deeplearning4j" % "dl4j-caffe" % "0.5.0"
+// libraryDependencies += "org.deeplearning4j" % "dl4j-caffe" % "0.5.0"
+
+// https://mvnrepository.com/artifact/org.deeplearning4j/deeplearning4j-core
+libraryDependencies += "org.deeplearning4j" % "deeplearning4j-core" % "0.6.0"
+
+// https://mvnrepository.com/artifact/org.nd4j/nd4j-native
+libraryDependencies += "org.nd4j" % "nd4j-native" % "0.6.0"
+
+// https://mvnrepository.com/artifact/org.datavec/datavec-api
+libraryDependencies += "org.datavec" % "datavec-api" % "0.6.0"
+
 
 libraryDependencies += "org.scalatest" % "scalatest_2.10" % "3.0.0" exclude("org.jboss.netty", "netty")
 
