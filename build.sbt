@@ -54,6 +54,15 @@ libraryDependencies += "org.deeplearning4j" % "deeplearning4j-core" % "0.6.0"
 // https://mvnrepository.com/artifact/org.nd4j/nd4j-native
 libraryDependencies += "org.nd4j" % "nd4j-native" % "0.6.0"
 
+
+libraryDependencies += "org.nd4j" % "nd4j-native-platform" % "0.4.0"
+
+// https://mvnrepository.com/artifact/org.nd4j/nd4j-api
+libraryDependencies += "org.nd4j" % "nd4j-api" % "0.6.0"
+
+// https://mvnrepository.com/artifact/org.nd4j/nd4j-jblas
+libraryDependencies += "org.nd4j" % "nd4j-jblas" % "0.4-rc3.6"
+
 // https://mvnrepository.com/artifact/org.datavec/datavec-api
 libraryDependencies += "org.datavec" % "datavec-api" % "0.6.0"
 
