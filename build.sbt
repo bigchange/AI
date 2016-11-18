@@ -6,9 +6,9 @@ version := "1.0"
 
 scalaVersion := "2.11.8"
 
-libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.10.4" % "provided"
+libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.11.8" % "provided"
 
-libraryDependencies += "org.scalatest" % "scalatest_2.10" % "3.0.0" exclude("org.jboss.netty", "netty")
+libraryDependencies += "org.scalatest" % "scalatest_2.11" % "3.0.0" exclude("org.jboss.netty", "netty")
 
 libraryDependencies += "org.apache.hadoop" % "hadoop-common" % "2.7.1" % "provided" excludeAll ExclusionRule(organization = "javax.servlet")
 
