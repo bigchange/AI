@@ -1,38 +1,90 @@
 package com.bigchange.util
 
-import java.util.Properties
+import java.sql.Connection
 
-import org.apache.spark.{SparkContext, SparkConf}
-import org.apache.spark.sql.{SQLContext, Row}
-import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
+import com.bigchange.config.XMLConfig
+import com.jolbox.bonecp.{BoneCP, BoneCPConfig}
 
 /**
   * Created by C.J.YOU on 2016/3/22.
   */
-object MysqlUtil {
+class MysqlTool private(val xmlHandle: XMLConfig, val isTestOrNot: Boolean = true) extends Serializable {
 
-  private val sparkConf = new SparkConf()
-    .setAppName("LoadData_Analysis")
-    .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    .set("spark.kryoserializer.buffer.max", "2000")
-    .setMaster("local")
-  private val sc = new SparkContext(sparkConf)
-  private val sqlContext = new SQLContext(sc)
+    lazy val config = createConfig
 
+    lazy val connPool = new BoneCP(config)
 
-  def getTableDataAndWriteData(inTableName:String,readConnection:String,outTableName:String,writeConnection:String): Unit ={
-    val properties = new Properties()
-    properties.setProperty("driver","com.mysql.jdbc.Driver")
-    // .write.mode("append").
-    sqlContext.createDataFrame(sqlContext.read.jdbc(readConnection,inTableName,properties).map(row => Row(row(0),row(1),row(1).toString,row(3),row(1).toString,0)),schema =
-      StructType(StructField("v_code", StringType, nullable = true) ::
-        StructField("v_name", StringType, nullable = true) ::
-        StructField("v_name_url", StringType, nullable = true) ::
-        StructField("v_jian_pin", StringType, nullable = true) ::
-        StructField("v_quan_pin", StringType, nullable = true) ::
-        StructField("v_count", IntegerType, nullable = true)::Nil))
-      .write.mode("append").jdbc(writeConnection,outTableName,properties)
+    /** 初始化数据库连接池 */
+    def createConfig: BoneCPConfig = {
+
+      val initConfig = new BoneCPConfig
+
+      if(isTestOrNot) {
+
+        initConfig.setJdbcUrl(xmlHandle.getElem("mySql", "urltest"))
+        initConfig.setUsername(xmlHandle.getElem("mySql", "usertest"))
+        initConfig.setPassword(xmlHandle.getElem("mySql", "passwordtest"))
+
+      } else {
+        initConfig.setJdbcUrl(xmlHandle.getElem("mySql", "urlstock"))
+        initConfig.setUsername(xmlHandle.getElem("mySql", "userstock"))
+        initConfig.setPassword(xmlHandle.getElem("mySql", "passwordstock"))
+      }
+
+      initConfig.setMinConnectionsPerPartition(Integer.parseInt(xmlHandle.getElem("mySql", "minconn")))
+      initConfig.setMaxConnectionsPerPartition(Integer.parseInt(xmlHandle.getElem("mySql", "maxconn")))
+      initConfig.setPartitionCount(Integer.parseInt(xmlHandle.getElem("mySql", "partition")))
+      initConfig.setConnectionTimeoutInMs(Integer.parseInt(xmlHandle.getElem("mySql", "timeout")))
+      initConfig.setConnectionTestStatement("select 1")
+      initConfig.setIdleConnectionTestPeriodInMinutes(Integer.parseInt(xmlHandle.getElem("mySql", "connecttest")))
+
+      initConfig
+
+    }
+
+    def setConfig(mix: Int, max: Int, testPeriod: Long) = {
+      config.setPartitionCount(1)
+      config.setMinConnectionsPerPartition(mix)
+      config.setMaxConnectionsPerPartition(max)
+      config.setIdleConnectionTestPeriodInMinutes(3)
+      config.setIdleMaxAgeInMinutes(3)
+    }
+
+    /**
+      * 获取连接
+      * @author wukun
+      */
+    def getConnect: Option[Connection] = {
+
+      var connect: Option[Connection] = null
+
+      try {
+        connect = Some(connPool.getConnection)
+      } catch {
+
+        case e: Exception => {
+
+          if(connect != null) {
+            connect.get.close
+          }
+          connect = None
+        }
+      }
+
+      connect
+    }
+
+    def close = connPool.shutdown
 
   }
 
-}
+  /**
+    * Created by wukun on 2016/5/18
+    * MysqlPool伴生对象
+    */
+  object MysqlTool extends Serializable {
+
+    def apply(xmlHandle: XMLConfig, isTestOrNot: Boolean = true) = new MysqlTool(xmlHandle, isTestOrNot)
+
+
+  }

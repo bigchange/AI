@@ -9,36 +9,15 @@ import scala.xml.XML
 
 class XMLConfig(xmlFilePath:String) {
 
+  private val xmlConfig = loadXml()
 
-  val XML_CONFIG  = XML.loadFile(xmlFilePath)
+  def loadXml() = XML.loadFile(xmlFilePath)
 
-  val IP = ( XML_CONFIG  \ "FTP" \ "IP").text
+  def getElem(elemName:String) = (xmlConfig \ elemName).text
 
-  val BACK_IP = ( XML_CONFIG  \ "FTP" \ "BACKIP").text
+  def getElem(firstName:String, secondName:String) = (xmlConfig \ firstName \ secondName).text
 
-  val USER_NAME = ( XML_CONFIG  \ "FTP" \ "USER").text
-
-  val PASSWORD = ( XML_CONFIG  \ "FTP" \ "PASSWORD" ).text
-
-  val REMOTE_DIR = (XML_CONFIG  \ "FTP" \ "ROOTDIR").text
-
-  val FILE_PREFIX_NAME = (XML_CONFIG  \ "FTP" \ "PREFFIX").text
-
-  val FILE_SUFFIX_NAME = (XML_CONFIG  \ "FTP" \ "SUFFIX" ).text
-
-  val LOG_DIR = (XML_CONFIG  \ "FILE" \ "LOG" ).text
-
-  var DATA_DIR = (XML_CONFIG  \ "FILE" \ "DATA").text
-
-  var PROGRESS_DIR =( XML_CONFIG  \ "FILE" \ "PROCESS" ).text
-
-  val LOG_CONFIG = (XML_CONFIG  \ "LOGGER" \ "CONF").text
-
-  val RECEIVER = (XML_CONFIG \ "Message" \ "receiver").text
-
-  val KEY = (XML_CONFIG \ "Message" \ "key").text
-
-  val MESSAGE_CONTEXT = (XML_CONFIG \ "Message" \ "context").text
+  override def toString = this.xmlFilePath
 
 
 }
@@ -47,13 +26,20 @@ class XMLConfig(xmlFilePath:String) {
 // 伴生对象
 object XMLConfig {
 
-  var ftpConfig: XMLConfig =  null
+  var xmlHandle: XMLConfig =  null
 
+  /**
+    * 获取全局唯一的操作句柄实例
+    * @param xmlFilePath 路径
+    * @author youchaojiang
+    */
   def apply(xmlFilePath: String)  = {
 
-    if (ftpConfig == null) ftpConfig = new XMLConfig(xmlFilePath) else ftpConfig
+    if (xmlHandle == null) xmlHandle = new XMLConfig(xmlFilePath) else xmlHandle
 
   }
+
+  def getInstance = XMLConfig
 
 
 }

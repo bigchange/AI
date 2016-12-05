@@ -29,11 +29,14 @@ object HDFSFileUtil {
     fs.close()
   }
 
+  /** 创建文件 */
   def createFile(name:String): Unit ={
     val fs = FileSystem.get(new URI("hdfs://ns1"), conf, "root")
     fs.createNewFile(new Path(name))
     fs.close()
   }
+
+  /** 写入文件 */
   def writeToFile(name:String,array: Array[String]): Unit ={
     val fs = FileSystem.get(new URI("hdfs://ns1"), conf, "root")
     val writer = new PrintWriter(fs.append(new Path(name)))
@@ -45,7 +48,8 @@ object HDFSFileUtil {
     fs.close()
   }
 
-  def isExist(name:String): Boolean ={
+  /** 判断文件是否存在 */
+  def isExist(name:String): Boolean = {
     val fs = FileSystem.get(new URI("hdfs://ns1"), conf, "root")
     fs.exists(new Path(name))
   }

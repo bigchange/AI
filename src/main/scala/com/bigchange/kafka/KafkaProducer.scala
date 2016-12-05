@@ -19,13 +19,13 @@ object KafkaProducer {
 
     val producer = new Producer[String, String](new ProducerConfig(props))
 
-    def kafkaMesssage(message: String): KeyedMessage[String, String] = {
+    def kafkaMessage(message: String): KeyedMessage[String, String] = {
         new KeyedMessage(sendTopic, null, message)
     }
 
     def send(message: String): Unit = {
         try {
-            producer.send(kafkaMesssage(message))
+            producer.send(kafkaMessage(message))
         } catch {
             case e: Exception => println(e)
         }
