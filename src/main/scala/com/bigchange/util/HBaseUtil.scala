@@ -5,6 +5,8 @@ import org.apache.hadoop.hbase.client._
 import org.apache.hadoop.hbase.util.Bytes
 import org.apache.hadoop.hbase.{HBaseConfiguration, HColumnDescriptor, HTableDescriptor, TableName}
 
+import scala.collection.mutable
+
 
 
 /**
@@ -13,11 +15,13 @@ import org.apache.hadoop.hbase.{HBaseConfiguration, HColumnDescriptor, HTableDes
 object HBaseUtil {
 
   private lazy val connection = getConnection
-  private case class RowTelecomData(row:String,ts:String,ad:String,ua:String,url:String,ref:String,cookie:String)
+
+  private case class RowData[K, V](rowKey: String, dataMap:mutable.HashMap[K, V])
+
+  // 自定义外部可访问接口：存储对应格式数据到hbase即可
 
   /**
     * 获取hbase的连接器
- *
     * @return connection
     */
   private def getConnection: Connection ={
@@ -44,7 +48,6 @@ object HBaseUtil {
 
   /**
     * 创建hbase表
- *
     * @param tableName 表名
     * @param columnFamilys 列族的声明
     * @param connection 连接器
@@ -62,52 +65,72 @@ object HBaseUtil {
   }
 
   /**
-    * row key 是否存在
+    * 判断 row key 是否存在
+    * @param row rowKey
+    * @param table tableName
+    * @return Boolean
     */
   private def existRowKey(row:String,table:Table): Boolean ={
 
     val get = new Get(row.getBytes())
     val result = table.get(get)
+
     if (result.isEmpty) {
       CLogger.warn("hbase table don't have this data,execute insert")
       return false
     }
+
     true
+
   }
 
   /**
-    * 存入数据到对应的table中
+    * 数据格式转换
+    * @param qualifiers  对应的列名集合
+    * @param string 写入的数据内容
+    * @return 自定义数据格式
     */
-  private def put(tableName:String,data:RowTelecomData): Boolean ={
+  private[this] def formatToRowTelecomData(qualifiers:Array[String], string:String)  = {
 
+    val dataArray = string.split("\t")
+    val dataMap = new mutable.HashMap[String, String]()
+
+    for (index <- qualifiers.indices) {
+      dataMap.put(qualifiers(index), dataArray(index))
+    }
+    RowData(rowKey = TimeUtil.getTimeStamp.toString, dataMap)
+
+  }
+
+  /**
+    * 数据写入table中
+    * @param tableName 表名
+    * @param family  列族
+    * @param qualifiers RowTelecomData 格式数据
+    * @param originData  originData
+    * @param dataFormatFunction dataFormatFunction  数据格式化函数
+    * @return Boolean
+    */
+  private def put(tableName:String, family: String, qualifiers:Array[String], originData:String, dataFormatFunction: (Array[String], String) => RowData): Boolean = {
+
+    val data = dataFormatFunction(qualifiers, originData)
     val hbaseTableName = TableName.valueOf(tableName)
+
     if (!connection.getAdmin.tableExists(hbaseTableName))
       createHbaseTable(hbaseTableName, List("info"), connection)
+
     val table = connection.getTable(hbaseTableName)
-    if (existRowKey(data.row, table)) {
-       return  false
+
+    // write data bytes
+    data.dataMap.foreach { case(qualifier, value) =>
+      if (existRowKey(data.rowKey, table))  return false
+      val put = new Put(Bytes.toBytes(data.rowKey))
+      put.addColumn(Bytes.toBytes(family), Bytes.toBytes(qualifier.toString), Bytes.toBytes(value.toString))
+      table.put(put)
     }
 
-    val put = new Put(Bytes.toBytes(data.row))
-    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("ts"), Bytes.toBytes(data.ts))
-    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("ad"), Bytes.toBytes(data.ad))
-    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("ua"), Bytes.toBytes(data.ua))
-    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("url"), Bytes.toBytes(data.url))
-    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("ref"), Bytes.toBytes(data.ref))
-    put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("cookie"), Bytes.toBytes(data.cookie))
-    table.put(put)
     true
-  }
 
-  private def formatData(string:String) : RowTelecomData ={
-     val arr = string.split("\t")
-     RowTelecomData(TimeUtil.getTimeStamp+"_"+ arr(1),arr(0),arr(1),arr(2),arr(3),arr(4),arr(5))
-  }
-
-  def saveData(arr:Array[String]): Unit ={
-    for(item <- arr){
-     ;
-    }
   }
 
 }
