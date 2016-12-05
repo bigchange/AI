@@ -49,10 +49,9 @@ object XMLConfig {
 
   var ftpConfig: XMLConfig =  null
 
-  def apply(xmlFilePath: String):Unit = {
+  def apply(xmlFilePath: String)  = {
 
-    if(ftpConfig == null)
-      ftpConfig = new XMLConfig(xmlFilePath)
+    if (ftpConfig == null) ftpConfig = new XMLConfig(xmlFilePath) else ftpConfig
 
   }
 
