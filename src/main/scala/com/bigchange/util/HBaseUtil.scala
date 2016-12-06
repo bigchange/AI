@@ -16,7 +16,7 @@ object HBaseUtil {
 
   private lazy val connection = getConnection
 
-  private case class RowData[K, V](rowKey: String, dataMap:mutable.HashMap[K, V])
+  private case class RowData(rowKey: String, dataMap:mutable.HashMap[String, String])
 
   // 自定义外部可访问接口：存储对应格式数据到hbase即可
 

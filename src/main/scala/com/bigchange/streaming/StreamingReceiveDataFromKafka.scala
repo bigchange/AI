@@ -37,7 +37,7 @@ object StreamingReceiveDataFromKafka {
       .set("spark.akka.frameSize","256")
     // .setMaster("local")
 
-    System.setProperty("spark.scheduler.mode", "FAIR")
+    System.setProperty("spark.scheduler.mode", "FAIR")  // 公平调度
 
     val Array(brokers, topics, zkhosts, checkpointDir, groupId) = args
 
@@ -62,6 +62,7 @@ object StreamingReceiveDataFromKafka {
       kafkaParams = Map[String,String]("metadata.broker.list" -> brokers,"group.id" -> groupId,"zookeeper.connect" -> zkhosts,"serializer.class" -> "kafka.serializer.StringEncoder"),
       topics = topics.split(",").toSet
     )
+
 
     val result = lineData.flatMap(x => x._2)
 

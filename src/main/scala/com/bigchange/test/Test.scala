@@ -1,14 +1,14 @@
 package com.bigchange.test
-import org.apache.spark.{SparkConf, SparkContext}
 
 /**
   * Created by C.J.YOU on 2016/9/27.
   * 处理数据过程中
   * 涉及到的一些转换的Test用例
   */
+
 object Test {
 
-  val  sc = SparkContext.getOrCreate(new SparkConf().setMaster("local").setAppName("Test"))
+  // val  sc = SparkContext.getOrCreate(new SparkConf().setMaster("local").setAppName("Test"))
 
   def main(args: Array[String]) {
 

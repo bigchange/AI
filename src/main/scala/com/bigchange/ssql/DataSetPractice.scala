@@ -1,6 +1,6 @@
-package com.bigchange.ml
+package com.bigchange.ssql
 
-import org.apache.spark
+import org.apache.spark.sql.SparkSession
 
 /**
   * Created by C.J.YOU on 2016/11/18.

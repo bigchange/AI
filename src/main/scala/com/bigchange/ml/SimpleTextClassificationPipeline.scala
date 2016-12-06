@@ -1,14 +1,13 @@
 package com.bigchange.ml
 
-import org.apache.spark
-import org.apache.spark.ml.Pipeline
 import org.apache.spark.ml.classification.LogisticRegression
 import org.apache.spark.ml.evaluation.BinaryClassificationEvaluator
 import org.apache.spark.ml.feature.{HashingTF, Tokenizer}
 import org.apache.spark.ml.param.ParamMap
 import org.apache.spark.ml.tuning.{CrossValidator, ParamGridBuilder}
-import org.apache.spark.sql.{Row, SQLContext}
+import org.apache.spark.ml.{Pipeline, PipelineModel}
 import org.apache.spark.mllib.linalg.Vector
+import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.{SparkConf, SparkContext}
 
 
@@ -23,10 +22,12 @@ object SimpleTextClassificationPipeline {
   case class Document(id:Long,text:String)
 
   def main(args: Array[String]) {
-    val conf = new SparkConf().setAppName("STCP").setMaster("local")
+
+    val conf = new SparkConf()
+      .setAppName("STCP")
+      .setMaster("local")
+
     val sc = new SparkContext(conf)
-    val sqlContext = new SQLContext(sc)
-    import sqlContext.implicits._
 
     val spark = SparkSession.builder()
       .appName("Spark SQL basic example")
@@ -115,7 +116,7 @@ object SimpleTextClassificationPipeline {
     val model2 = lr.fit(docs, paramMapCombined)
 
     // Prepare test documents, which are unlabeled (id, text) tuples.
-    val test = spark.createDataFrame(Seq(
+    val test2 = spark.createDataFrame(Seq(
       (4L, "spark i j k"),
       (5L, "l m n"),
       (6L, "mapreduce spark"),
@@ -123,7 +124,7 @@ object SimpleTextClassificationPipeline {
     )).toDF("id", "text")
 
     // Make predictions on test documents.
-    model2.transform(test)
+    model2.transform(test2)
       .select("id", "text", "myProbability", "prediction")
       .collect()
       .foreach { case Row(id: Long, text: String, prob: Vector, prediction: Double) =>
@@ -166,7 +167,7 @@ object SimpleTextClassificationPipeline {
     val cvModel = cv.fit(docs)
 
     // Prepare test documents, which are unlabeled (id, text) tuples.
-    val test = spark.createDataFrame(Seq(
+    val test3 = spark.createDataFrame(Seq(
       (4L, "spark i j k"),
       (5L, "l m n"),
       (6L, "mapreduce spark"),
@@ -174,7 +175,7 @@ object SimpleTextClassificationPipeline {
     )).toDF("id", "text")
 
     // Make predictions on test documents. cvModel uses the best model found (lrModel).
-    cvModel.transform(test)
+    cvModel.transform(test3)
       .select("id", "text", "probability", "prediction")
       .collect()
       .foreach { case Row(id: Long, text: String, prob: Vector, prediction: Double) =>
