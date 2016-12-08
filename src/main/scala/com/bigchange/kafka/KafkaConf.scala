@@ -11,11 +11,12 @@ import org.apache.spark.streaming.kafka.KafkaUtils
 
 
 object KafkaConf {
-  val zkQuorum = "10.5.30.5:2181,10.5.30.6:2181,10.5.30.7:2181,10.5.30.8:2181,10.5.30.9:2181,10.5.30.10:2181,10.5.30.11:2181,10.5.30.12:2181,10.5.30.13:2181,10.5.30.14:2181,10.5.30.15:2181"
+
+   val zkQuorum = "61.147.114.81:2181,61.147.114.82:2181,61.147.114.84:2181,61.147.114.80:2181,61.147.114.85:2181"
 
    //val group = "Spark_" //需要确保每个提交的job的kafka group名称不同
-  val topics = "SparkTopic"
-  val numThreads = 2
+   val topics = "yangdecheng"
+   val numThreads = 2
 
   def createStream(
                     ssc: StreamingContext,
@@ -35,6 +36,10 @@ object KafkaConf {
       "auto.offset.reset" -> "largest")
     KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](
       ssc, kafkaParams, topics, storageLevel)
+  }
+
+  def getStreaming(ssc: StreamingContext, groupId: String)  = {
+     createStream(ssc, zkQuorum, groupId, Map(topics -> 1))
   }
 
 }
