@@ -53,6 +53,12 @@ libraryDependencies += "org.jblas" % "jblas" % "1.2.3"
 // https://mvnrepository.com/artifact/com.jolbox/bonecp (Lightweight connection pool.）
 libraryDependencies += "com.jolbox" % "bonecp" % "0.8.0.RELEASE"
 
+// https://mvnrepository.com/artifact/io.dropwizard.metrics/metrics-core
+libraryDependencies += "io.dropwizard.metrics" % "metrics-core" % "3.1.2"
+
+// https://mvnrepository.com/artifact/dom4j/dom4j
+libraryDependencies += "dom4j" % "dom4j" % "1.6.1"
+
 
 // https://mvnrepository.com/artifact/org.deeplearning4j/dl4j-caffe
 // libraryDependencies += "org.deeplearning4j" % "dl4j-caffe" % "0.5.0"

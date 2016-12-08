@@ -5,6 +5,7 @@ import scala.xml.XML
 /**
   * Created by C.J.YOU on 2016/8/26.
   * 配置文件的加载
+  * same to SXMLConfig
   */
 
 class XMLConfig(xmlFilePath:String) {
@@ -16,6 +17,8 @@ class XMLConfig(xmlFilePath:String) {
   def getElem(elemName:String) = (xmlConfig \ elemName).text
 
   def getElem(firstName:String, secondName:String) = (xmlConfig \ firstName \ secondName).text
+
+  def  allParameter = xmlConfig
 
   override def toString = this.xmlFilePath
 
@@ -40,6 +43,10 @@ object XMLConfig {
   }
 
   def getInstance = XMLConfig
+
+  // 如何动态增加 外部参数变量
+  def getAllXmlParameter = xmlHandle.allParameter
+
 
 
 }
