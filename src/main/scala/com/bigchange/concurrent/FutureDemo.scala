@@ -1,6 +1,6 @@
 package com.bigchange.concurrent
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{Future, Promise}
 import scala.util.{Failure, Random, Success}
 
 /**
@@ -41,7 +41,7 @@ object FutureDemo {
   // 定义 Future时， 加上 Future {} 代码不会执行， 去掉 Future 会执行
   def grind(beans: CoffeeBeans): Future[GroundCoffee] =  {
 
-    // val promise = Promise[GroundCoffee]  // 控制异步操作的结果
+    val promise = Promise[GroundCoffee]  // 控制异步操作的结果
 
     println("start grinding...")
     Thread.sleep(Random.nextInt(2000))
@@ -49,33 +49,36 @@ object FutureDemo {
     println("finished grinding...")
     val res = s"ground coffee of $beans"
 
-    Future(res)
-    // promise.success(res).future
+    // Future(res)
+    promise.success(res).future
 
   }
 
   def heatWater(water: Water): Future[Water] =  {
 
-    // val promise = Promise[Water]
+    val promise = Promise[Water]
 
     println("heating the water now - " + water.temperature)
     Thread.sleep(Random.nextInt(2000))
     println("hot, it's hot!")
     water.copy(temperature = 85)
 
-    Future(water)
+    // Future(water)
 
-    // promise.success(water).future
+    promise.success(water).future
 
   }
 
   def frothMilk(milk: Milk): Future[FrothedMilk] = {
 
+    val promise = Promise[Milk]
+
     println("milk frothing system engaged!")
     Thread.sleep(Random.nextInt(2000))
     println("shutting down milk frothing system")
 
-    Future(s"frothed $milk")
+    // Future(s"frothed $milk")
+    promise.success(s"frothed $milk").future
 
   }
 
