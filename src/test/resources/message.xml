@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+    <logger>
+        <path>hbaseNews.properties</path>
+     </logger>
+     <hbase>
+        <rootDir>hdfs://:9000/hbase</rootDir>
+        <quorum>server0,server1,server2</quorum>
+    </hbase>
+    <Message>
+        <receiver>1</receiver>
+        <key>2</key>
+        <context>3</context>
+    </Message>
+</xml>

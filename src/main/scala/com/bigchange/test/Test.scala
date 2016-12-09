@@ -1,16 +1,14 @@
 package com.bigchange.test
-import org.apache.spark.{SparkConf, SparkContext}
-
-import scala.util.Random
 
 /**
   * Created by C.J.YOU on 2016/9/27.
   * 处理数据过程中
   * 涉及到的一些转换的Test用例
   */
+
 object Test {
 
-  val  sc = SparkContext.getOrCreate(new SparkConf().setMaster("local").setAppName("Test"))
+  // val  sc = SparkContext.getOrCreate(new SparkConf().setMaster("local").setAppName("Test"))
 
   def main(args: Array[String]) {
 
@@ -47,11 +45,9 @@ object Test {
     val scaledVectors = vectors.map { v => scaler.transform(v) } // 向量减去当前列的平均值 */
 
     // @ Test 权重小随机数初始化
-    val random = new Random()
+   /* val random = new Random()
     val dimension = 10
-    val weights = Array.tabulate(10)(_ => random.nextGaussian()) // 基于零均值和标准差的一个高斯分布（译者注：国内教程一般习惯称均值参数为期望\mu）来生成随机数的
-
-
+    val weights = Array.tabulate(10)(_ => random.nextGaussian()) // 基于零均值和标准差的一个高斯分布（译者注：国内教程一般习惯称均值参数为期望\mu）来生成随机数的*/
 
   }
 

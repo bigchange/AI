@@ -1,11 +1,7 @@
 package com.bigchange.basic
 
 import breeze.numerics.{pow, sqrt}
-import breeze.util.TopK
 import org.apache.spark.{HashPartitioner, SparkConf, SparkContext}
-import org.json4s.DefaultFormats
-import org.json4s.JsonDSL._
-import org.json4s.jackson.JsonMethods._
 // import redis.RedisClient
 
 import scala.language.postfixOps
@@ -61,8 +57,8 @@ object RecommendationTest {
     }).groupByKey()
 
     movieToMovieScore.foreachPartition(records => {
-      implicit val formats = DefaultFormats
-      implicit val akkaSystem = akka.actor.ActorSystem()
+      // implicit val formats = DefaultFormats
+      // implicit val akkaSystem = akka.actor.ActorSystem()
 
       /*
       // 将结果存储到redis中

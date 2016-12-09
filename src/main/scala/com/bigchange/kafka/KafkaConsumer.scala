@@ -1,8 +1,6 @@
 package com.bigchange.kafka
 
-/*
- kafka 配置实现类
- */
+import com.bigchange.config.Parameter
 import kafka.serializer.StringDecoder
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.StreamingContext
@@ -10,20 +8,26 @@ import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.kafka.KafkaUtils
 
 
-object KafkaConf {
-  val zkQuorum = "10.5.30.5:2181,10.5.30.6:2181,10.5.30.7:2181,10.5.30.8:2181,10.5.30.9:2181,10.5.30.10:2181,10.5.30.11:2181,10.5.30.12:2181,10.5.30.13:2181,10.5.30.14:2181,10.5.30.15:2181"
+/*
+ kafka消费者
+ */
+class KafkaConsumer(parameter: Parameter) {
 
-   //val group = "Spark_" //需要确保每个提交的job的kafka group名称不同
-  val topics = "SparkTopic"
-  val numThreads = 2
+  private val zkQuorum = parameter.getParameterByTagName("kafka.zkQuorum")
 
-  def createStream(
+  private  val numThreads = parameter.getParameterByTagName("kafka.numThreads")
+
+  private  val topics = parameter.getParameterByTagName("kafka.consumerTopic").split(",").map((_, numThreads.toInt)).toMap
+
+  private  val groupId = parameter.getParameterByTagName("kafka.groupId")
+
+  private def createStream(
                     ssc: StreamingContext,
                     zkQuorum: String,
                     groupId: String,
                     topics: Map[String, Int],
                     storageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK_SER
-                    ): ReceiverInputDStream[(String, String)] = {
+                  ): ReceiverInputDStream[(String, String)] = {
     val kafkaParams = Map[String, String](
       "zookeeper.connect" -> zkQuorum,
       "group.id" -> groupId,
@@ -36,5 +40,25 @@ object KafkaConf {
     KafkaUtils.createStream[String, String, StringDecoder, StringDecoder](
       ssc, kafkaParams, topics, storageLevel)
   }
+
+  def getStreaming(ssc: StreamingContext)  = createStream(ssc, zkQuorum, groupId, topics)
+
+}
+
+object KafkaConsumer {
+
+
+  private var kc: KafkaConsumer = _
+
+  def apply(parameter: Parameter): KafkaConsumer = {
+
+    if(kc == null) kc = new KafkaConsumer(parameter)
+
+    kc
+
+  }
+
+  def getInstance = kc
+
 
 }
