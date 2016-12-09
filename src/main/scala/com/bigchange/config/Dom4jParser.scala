@@ -2,8 +2,9 @@ package com.bigchange.config
 
 import java.io.File
 
-import org.dom4j.{Document, Element}
+import com.bigchange.log.CLogger
 import org.dom4j.io.SAXReader
+import org.dom4j.{Document, Element}
 
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
@@ -11,7 +12,7 @@ import scala.util.{Failure, Success, Try}
 /**
   * Created by C.J.YOU on 2016/12/8.
   */
-class Dom4jParser(xmlFilePath:String)  {
+class Dom4jParser (xmlFilePath:String) extends CLogger  {
 
   private val parser = dom4jParser
 
@@ -73,7 +74,7 @@ class Dom4jParser(xmlFilePath:String)  {
 
     value match {
       case Success(v) => v
-      case Failure(ex) => p
+      case Failure(ex) => errorLog(logFileInfo, msg = "tagName not exist!!")
     }
 
   }

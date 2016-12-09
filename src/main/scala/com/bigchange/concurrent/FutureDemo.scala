@@ -1,7 +1,7 @@
 package com.bigchange.concurrent
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Random
+import scala.util.{Failure, Random, Success}
 
 /**
   * Created by C.J.YOU on 2016/12/7.
@@ -32,82 +32,110 @@ object FutureDemo {
 
   // 创建专用的线程池， 不适用全局的隐式context
   import java.util.concurrent.Executors
+
   import concurrent.ExecutionContext
   val executorService = Executors.newFixedThreadPool(4)
   val executionContext = ExecutionContext.fromExecutorService(executorService)
 
-  def grind(beans: CoffeeBeans): Future[GroundCoffee] = Future {
+
+  // 定义 Future时， 加上 Future {} 代码不会执行， 去掉 Future 会执行
+  def grind(beans: CoffeeBeans): Future[GroundCoffee] =  {
+
+    // val promise = Promise[GroundCoffee]  // 控制异步操作的结果
+
     println("start grinding...")
     Thread.sleep(Random.nextInt(2000))
     if (beans == "baked beans") throw GrindingException("are you joking?")
     println("finished grinding...")
-    s"ground coffee of $beans"
+    val res = s"ground coffee of $beans"
+
+    Future(res)
+    // promise.success(res).future
+
   }
 
-  def heatWater(water: Water): Future[Water] = Future {
+  def heatWater(water: Water): Future[Water] =  {
 
-    println("heating the water now")
+    // val promise = Promise[Water]
+
+    println("heating the water now - " + water.temperature)
     Thread.sleep(Random.nextInt(2000))
     println("hot, it's hot!")
     water.copy(temperature = 85)
 
+    Future(water)
+
+    // promise.success(water).future
+
   }
 
-  def frothMilk(milk: Milk): Future[FrothedMilk] = Future {
+  def frothMilk(milk: Milk): Future[FrothedMilk] = {
+
     println("milk frothing system engaged!")
     Thread.sleep(Random.nextInt(2000))
     println("shutting down milk frothing system")
-    s"frothed $milk"
+
+    Future(s"frothed $milk")
+
   }
 
-  def brew(coffee: GroundCoffee, heatedWater: Water): Future[Espresso] = Future {
+  def brew(coffee: GroundCoffee, heatedWater: Water): Future[Espresso] =  {
+
     println("happy brewing :)")
     Thread.sleep(Random.nextInt(2000))
     println("it's brewed!")
-    "espresso"
+
+    Future(s"espresso")
+
   }
 
   def combine(espresso: Espresso, frothedMilk: FrothedMilk): Cappuccino = "cappuccino"
 
-  val tempreatureOkay: Future[Boolean] = heatWater(Water(25)) map { water =>
-    println("we're in the future!")
+  /*val tempreatureOkay: Future[Boolean] = heatWater(Water(25)) map { water =>
+    println("1 - we're in the future!")
     (80 to 85) contains water.temperature
-  }
+  }*/
 
   def temperatureOkay(water: Water): Future[Boolean] = Future {
+    println("2 - we're in the future!")
     (80 to 85) contains water.temperature
   }
 
-  val flatFuture: Future[Boolean] = heatWater(Water(25)) flatMap {
+  /*val flatFuture: Future[Boolean] = heatWater(Water(26)) flatMap {
     water => temperatureOkay(water)
-  }
+  }*/
 
-  val nestedFuture: Future[Future[Boolean]] = heatWater(Water(25)) map {
+  /*val nestedFuture: Future[Future[Boolean]] = heatWater(Water(27)) map {
     water => temperatureOkay(water)
-  }
+  }*/
 
   // 准备动作
   def prepareCappuccino(): Future[Cappuccino] = {
+
+    // 一起执行
     val groundCoffee = grind("arabica beans")
     val heatedWater = heatWater(Water(20))
     val frothedMilk = frothMilk("milk")
+
     for {
       ground <- groundCoffee
       water <- heatedWater
       foam <- frothedMilk
       espresso <- brew(ground, water)
     } yield combine(espresso, foam)
+
   }
 
 
   def main(args: Array[String]) {
 
     // 回调
-    import scala.util.{Failure, Success}
+/*    import scala.util.{Failure, Success}
     grind("arabica beans").onComplete {
       case Success(ground) => println(s"got my $ground")
       case Failure(ex) => println("This grinder needs a replacement, seriously!")
-    }
+    }*/
+
 
     prepareCappuccino().onComplete {
       case Success(res) => println(res)
