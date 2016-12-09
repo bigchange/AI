@@ -15,7 +15,7 @@ import scala.collection.mutable
 /**
   * Created by C.J.YOU on 2016/3/21.
   */
-object HBaseUtil {
+object HBaseUtil extends CLogger {
 
   private val hBaseConfiguration = getConfiguration
 
@@ -50,7 +50,7 @@ object HBaseUtil {
     */
   private def getConnection: Connection = {
 
-    CLogger.warn("create connection")
+    warn("create connection")
 
     val connection = ConnectionFactory.createConnection(hBaseConfiguration)
 
@@ -90,7 +90,7 @@ object HBaseUtil {
     val result = table.get(get)
 
     if (result.isEmpty) {
-      CLogger.warn("hbase table don't have this data,execute insert")
+      warn("hbase table don't have this data,execute insert")
       return false
     }
 

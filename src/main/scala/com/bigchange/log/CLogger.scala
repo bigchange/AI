@@ -1,36 +1,29 @@
 package com.bigchange.log
 
-import org.apache.log4j.Logger
+import org.apache.log4j.{Logger, PropertyConfigurator}
 
 /**
   * Created by C.J.YOU on 2016/1/15.
+  * 打log日志的类需要继承此trait
   */
-object CLogger {
+trait CLogger extends Serializable{
 
 
   // PropertyConfigurator.configure("/home/telecom/conf/log4j.properties")
 
   private  val logger = Logger.getLogger("CLogger")
 
-  def debug(msg: String): Unit = {
-    logger.debug(msg)
-  }
+  def logConfigure(path: String) = PropertyConfigurator.configure(path)
 
-  def info(msg: String): Unit = {
-    logger.info(msg)
-  }
+  def debug(msg: String) = logger.debug(msg)
 
-  def warn(msg: String): Unit = {
-    logger.warn(msg + "<<<<==============")
-  }
+  def info(msg: String) = logger.info(msg)
 
-  def error(msg: String): Unit = {
-    logger.error(msg)
-  }
+  def warn(msg: String) = logger.warn(msg + "<<<<==============")
 
-  def exception(e: Exception): Unit = {
-    logger.error(e.getStackTrace)
-  }
+  def error(msg: String) = logger.error(msg)
+
+  def exception(e: Exception) = logger.error(e.getStackTrace)
 
   /**
     * 自定义输出的日志格式
@@ -42,6 +35,7 @@ object CLogger {
                msg: String) {
 
     logger.warn("{}[{}]：{}", info._1, info._2, msg)
+
   }
 
   def errorLog(
@@ -49,13 +43,14 @@ object CLogger {
                 msg: String) {
 
     logger.error("{}[{}]：{}", info._1, info._2, msg)
+
   }
 
   /**
     * 获取日志所在的文件信息
     * @return
     */
-  def fileInfo: (String, String) = (Thread.currentThread.getStackTrace()(2).getFileName, Thread.currentThread.getStackTrace()(2).getLineNumber.toString)
+  def logFileInfo: (String, String) = (Thread.currentThread.getStackTrace()(2).getFileName, Thread.currentThread.getStackTrace()(2).getLineNumber.toString)
 
 
 }

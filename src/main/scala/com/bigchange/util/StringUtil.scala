@@ -13,7 +13,7 @@ import sun.misc.{BASE64Encoder, BASE64Decoder}
 /**
   * Created by C.J.YOU on 2016/3/17.
   */
-object StringUtil {
+object StringUtil extends  CLogger {
 
   /**
     * 使用zlibZip进行压缩
@@ -151,7 +151,7 @@ object StringUtil {
       result = ts + "\t" + ad + "\t" + ua + "\t" + hostAndUrl + "\t" + ref + "\t" +cookie
     } catch {
       case e:Exception  =>
-        CLogger.error("praseJsonObject ERROR")
+        error("praseJsonObject ERROR")
     }
     result
   }

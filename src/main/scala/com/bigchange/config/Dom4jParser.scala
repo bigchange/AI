@@ -64,6 +64,20 @@ class Dom4jParser(xmlFilePath:String)  {
 
   }
 
+  def getParameterByTagName(tagName: String) = {
+
+    if (paremeters.nonEmpty)
+      getAllParameter
+
+    val value = Try(paremeters(tagName))
+
+    value match {
+      case Success(v) => v
+      case Failure(ex) => p
+    }
+
+  }
+
 }
 
 object Dom4jParser {
