@@ -1,4 +1,4 @@
-package com.bigchange.util
+package com.bigchange.ssql
 
 import java.sql.{Connection, DriverManager, SQLException}
 
@@ -10,7 +10,7 @@ import scala.util.Try
 
 
 // 创建 数据库 对应表的操作对象 进行进一步封装
-case class DataBaseTable(table:String)
+case class Table(table:String)
 
 /**
   * Created by C.J.YOU on 2016/3/22.
@@ -31,6 +31,7 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 
   /**
   * 另一种初始化方法
+ *
   * @param url mysql配置的url地址
   * @param xml 全局XML句柄
   * @author youchaojiang
@@ -79,6 +80,7 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 
   /**
     * 执行插入操作
+ *
     * @param  sql sql语句
     */
   def execInsertInto(sql: String): Try[Int] = {
@@ -96,6 +98,7 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 
   /**
     * 执行更新操作
+ *
     * @param  sql sql语句
     */
   def execUpdate(sql: String): Try[Int] = {
@@ -131,10 +134,11 @@ object MysqlHandle {
 
 /**
   * 数据库连接池（集群模式需广播连接池）
+ *
   * @param xmlHandle  配置
   * @param isTestOrNot 是否使用测试数据库
   */
-class MysqlTool private(val xmlHandle: XMLConfig, val isTestOrNot: Boolean = true) extends Serializable {
+class MysqlPool private(val xmlHandle: XMLConfig, val isTestOrNot: Boolean = true) extends Serializable {
 
     lazy val config = createConfig
 
@@ -178,6 +182,7 @@ class MysqlTool private(val xmlHandle: XMLConfig, val isTestOrNot: Boolean = tru
 
     /**
       * 获取连接
+ *
       * @author wukun
       */
     def getConnect: Option[Connection] = {
@@ -207,9 +212,9 @@ class MysqlTool private(val xmlHandle: XMLConfig, val isTestOrNot: Boolean = tru
     * Created by wukun on 2016/5/18
     * MysqlPool伴生对象
     */
-  object MysqlTool extends Serializable {
+  object MysqlPool extends Serializable {
 
-    def apply(xmlHandle: XMLConfig, isTestOrNot: Boolean = true) = new MysqlTool(xmlHandle, isTestOrNot)
+    def apply(xmlHandle: XMLConfig, isTestOrNot: Boolean = true) = new MysqlPool(xmlHandle, isTestOrNot)
 
 
   }
