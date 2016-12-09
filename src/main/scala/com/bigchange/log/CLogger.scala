@@ -48,7 +48,7 @@ trait CLogger extends Serializable{
 
   /**
     * 获取日志所在的文件信息
-    * @return
+    * @return (文件名， 位置)
     */
   def logFileInfo: (String, String) = (Thread.currentThread.getStackTrace()(2).getFileName, Thread.currentThread.getStackTrace()(2).getLineNumber.toString)
 
