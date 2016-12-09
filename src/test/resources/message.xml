@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xml>
     <logger>
-        <path>/hbaseNews.properties</path>
+        <path>hbaseNews.properties</path>
      </logger>
      <hbase>
         <rootDir>hdfs://:9000/hbase</rootDir>

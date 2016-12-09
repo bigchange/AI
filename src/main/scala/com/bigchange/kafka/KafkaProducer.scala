@@ -5,17 +5,26 @@ kafka 生产者实现类
  */
 
 import java.util.Properties
+
+import com.bigchange.config.Parameter
 import kafka.producer._
 
-object KafkaProducer {
+/**
+  * kafka 生产者
+  *
+  * @param parameter 外部参数传入
+  */
+class KafkaProducer(parameter: Parameter) {
 
-    private val sendTopic = "yangdecheng"
+    private val sendTopic = parameter.getParameterByTagName("kafka.sendTopic")
+
     private val props = new Properties()
     props.put("serializer.class", "kafka.serializer.StringEncoder")
-    props.put("metadata.broker.list", "61.147.114.81:9092,61.147.114.82:9092,61.147.114.84:9092,61.147.114.80:9092,61.147.114.85:9092")
+    props.put("metadata.broker.list", parameter.getParameterByTagName("kafka.brokerList"))
     props.put("request.required.acks","1")
-//  props.put("replica.fetch.max.bytes", (1024 * 1024 * 20).toString)
-//  props.put("message.max.bytes", (1024 * 1024 * 20).toString)
+    //  props.put("replica.fetch.max.bytes", (1024 * 1024 * 20).toString)
+    //  props.put("message.max.bytes", (1024 * 1024 * 20).toString)
+
 
     private val producer = new Producer[String, String](new ProducerConfig(props))
 
@@ -30,4 +39,20 @@ object KafkaProducer {
             case e: Exception => println(e)
         }
     }
+
+}
+
+object KafkaProducer {
+
+    private  var kp: KafkaProducer = _
+
+    def apply(parameter: Parameter): KafkaProducer = {
+
+        if (kp == null)
+            kp = new KafkaProducer(parameter)
+        kp
+    }
+
+    def getInstance = kp
+
 }

@@ -12,11 +12,11 @@ import scala.util.{Failure, Success, Try}
 /**
   * Created by C.J.YOU on 2016/12/8.
   */
-class Dom4jParser (xmlFilePath:String) extends CLogger  {
+class Dom4jParser (xmlFilePath:String) extends Parameter with CLogger  {
 
   private val parser = dom4jParser
 
-  private val paremeters = new mutable.HashMap[String, String]
+  private var parameters = new mutable.HashMap[String, String]
 
   def dom4jParser = {
 
@@ -37,45 +37,55 @@ class Dom4jParser (xmlFilePath:String) extends CLogger  {
 
   override def toString = this.xmlFilePath
 
-  private  def elements(element: Element):  Unit= {
+  // 遍历xml文件
+  private  def elements(element: Element):  (String, String)= {
 
     val iterator = element.elementIterator()
 
-    if(! iterator.hasNext)
-      paremeters.+=(element.getName -> element.getTextTrim)
+    if(!iterator.hasNext) {
+      return (element.getName, element.getTextTrim)
+    }
 
     while(iterator.hasNext) {
 
       val subElement:Element = iterator.next().asInstanceOf[Element]
 
-      elements(subElement)
+      val parent = element.getName
+
+      val res = elements(subElement)
+
+      if(res._1 != "")
+        parameters.+=(parent + "." + res._1 -> res._2)
 
     }
 
+    ("", "")
+
   }
 
-  def getAllParameter = {
+  override def getAllParameter = {
 
     val root = parser.getRootElement
-
-    if (! paremeters.nonEmpty)
+    if (parameters.isEmpty)
       elements(root)
 
-    paremeters
+    parameters
 
   }
 
-  def getParameterByTagName(tagName: String) = {
+  override def getParameterByTagName(tagName: String) = {
 
-    if (paremeters.nonEmpty)
+    if (parameters.isEmpty)
       getAllParameter
 
-    val value = Try(paremeters(tagName))
+    val value = Try(parameters(tagName))
 
-    value match {
+    val res = value match {
       case Success(v) => v
       case Failure(ex) => errorLog(logFileInfo, msg = "tagName not exist!!")
     }
+
+    res.asInstanceOf[String]
 
   }
 
@@ -83,13 +93,14 @@ class Dom4jParser (xmlFilePath:String) extends CLogger  {
 
 object Dom4jParser {
 
-  private val parser: Dom4jParser = null
+  private var parser: Dom4jParser = _
 
   def apply(xmlFilePath: String): Dom4jParser = {
 
     if(parser == null)
-      new Dom4jParser(xmlFilePath)
-    else  parser
+      parser = new Dom4jParser(xmlFilePath)
+
+    parser
 
   }
 
