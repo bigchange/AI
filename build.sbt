@@ -42,6 +42,8 @@ libraryDependencies += "org.apache.spark" % "spark-streaming-kafka-0-8_2.11" % "
 
 libraryDependencies += "redis.clients" % "jedis" % "2.8.0"
 
+libraryDependencies += "mysql" % "mysql-connector-java" % "5.1.6" excludeAll ExclusionRule(organization = "javax.servlet")
+
 libraryDependencies += "com.ning" % "async-http-client" % "1.7.16"
 
 libraryDependencies += "net.databinder.dispatch" % "dispatch-core_2.10" % "0.11.0" exclude("org.jboss.netty", "netty")

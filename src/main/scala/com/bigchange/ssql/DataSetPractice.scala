@@ -11,8 +11,9 @@ object DataSetPractice {
 
   val spark = SparkSession.builder()
     .appName("SSQL")
+    .master("local")
     .config("spark.some.config.option", "some-value")
-    .config("spark.sql.warehouse.dir", warehouseLocation)
+    .config("spark.sql.warehouse.dir", "spark-warehouse")
     .enableHiveSupport()
     .getOrCreate()
 

@@ -34,7 +34,7 @@ trait CLogger extends Serializable{
                info: (String, String),
                msg: String) {
 
-    logger.warn("{}[{}]：{}", info._1, info._2, msg)
+    logger.warn("{}[{}]:{}", info._1, info._2, msg)
 
   }
 
@@ -42,7 +42,7 @@ trait CLogger extends Serializable{
                 info: (String, String),
                 msg: String) {
 
-    logger.error("{}[{}]：{}", info._1, info._2, msg)
+    logger.error("{}[{}]:{}", info._1, info._2, msg)
 
   }
 

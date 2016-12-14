@@ -28,6 +28,9 @@ class KafkaConsumer(parameter: Parameter) {
                     topics: Map[String, Int],
                     storageLevel: StorageLevel = StorageLevel.MEMORY_AND_DISK_SER
                   ): ReceiverInputDStream[(String, String)] = {
+
+    // 0.9.0.0  a replacement for the older Scala-based simple and high-level consumers -> New Consumer Configs
+    //  Old Consumer Configs
     val kafkaParams = Map[String, String](
       "zookeeper.connect" -> zkQuorum,
       "group.id" -> groupId,
@@ -48,7 +51,7 @@ class KafkaConsumer(parameter: Parameter) {
 object KafkaConsumer {
 
 
-  private var kc: KafkaConsumer = _
+  private var kc: KafkaConsumer = null
 
   def apply(parameter: Parameter): KafkaConsumer = {
 

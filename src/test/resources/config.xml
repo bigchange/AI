@@ -5,19 +5,19 @@
         <master>local</master>
     </spark>>
      <table>
-        <tableUp>kunyan_to_upload_inter_tab_up</tableUp>
-        <tableSk>kunyan_to_upload_inter_tab_sk</tableSk>
+        <tableUp>kunyan_tab_up</tableUp>
+        <tableSk>kunyan_tab_sk</tableSk>
 		<expireDay>1</expireDay>
     </table>
 	<url>
 		<location> </location>
 	</url>
     <kafka>
-        <brokerList>61.147.114.85:9092</brokerList>>
+        <brokerList>:9092</brokerList>>
         <groupId>kunyan_spark_group</groupId>
         <sendTopic>kafka2kv_topic</sendTopic>
         <consumerTopic>yangdecheng</consumerTopic>
-        <zkQuorum>61.147.114.85:2181</zkQuorum>
+        <zkQuorum>:2181</zkQuorum>
         <numThreads>1</numThreads>>
     </kafka>
 </xml>

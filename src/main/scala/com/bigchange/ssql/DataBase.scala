@@ -1,6 +1,6 @@
 package com.bigchange.ssql
 
-import java.sql.{Connection, DriverManager, SQLException}
+import java.sql._
 
 import com.bigchange.config.XMLConfig
 import com.bigchange.log.CLogger
@@ -20,7 +20,7 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 
   private var conn = connection
 
-  private  val statement = conn.createStatement()
+  private  var statement: Statement = null
 
   def close() = {
 
@@ -29,24 +29,34 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 
   }
 
+  def getConnection = conn
+
+  private def getStatement  =  {
+     if(statement == null)
+       statement = conn.createStatement()
+  }
+
+  def this() = this(null)
+
   /**
   * 另一种初始化方法
- *
   * @param url mysql配置的url地址
   * @param xml 全局XML句柄
   * @author youchaojiang
     */
-  def this(url: String, xml: XMLConfig) {
+  def this(url: String, xml: XMLConfig) = {
 
-    this(null)
+    this
 
     try {
 
       val parameter = (xml.getElem("MYSQL", "user"), xml.getElem("MYSQL", "password"))
       // 这个方法可以不必显示调用，判断标准为jar包的META-INF/services/目录的java.sql.Driver文件里是否包含
       // com.mysql.jdbc.Driver这行，在DriverManager被加载时的静态块中会遍历这个文件里的内容进行主动加载
-      // Class.forName(xml.getElem("mySql", "driver"))
-      conn = DriverManager.getConnection(url, parameter._1, parameter._2)
+      Class.forName(xml.getElem("MYSQL", "driver"))
+
+      conn = DriverManager.getConnection(if(url.isEmpty) xml.getElem("MYSQL", "url") else url , parameter._1, parameter._2)
+      getStatement
 
     } catch {
 
@@ -62,13 +72,9 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
         errorLog(logFileInfo, e.getMessage)
         System.exit(-1)
     }
-  }
 
-  def batchExec(): Try[Array[Int]] = {
+    this
 
-    val ret = Try(statement.executeBatch)
-
-    ret
   }
 
   def addCommand(sql: String): Try[Unit] = {
@@ -78,10 +84,19 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
     ret
   }
 
+  // 执行sql 语句返回结果
+  def executeQuery(sql: String): Try[ResultSet] = {
+
+    Try(statement.executeQuery(sql))
+
+  }
+
   /**
     * 执行插入操作
- *
     * @param  sql sql语句
+    *  execInsertInto("sql") recover {
+          case e: Exception => warnLog(logFileInfo, e.getMessage + "[delete add failure]")
+       }
     */
   def execInsertInto(sql: String): Try[Int] = {
 
@@ -95,11 +110,16 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 
     ret
   }
+  execInsertInto(
+    "sql"
+  ) recover {
+    case e: Exception => warnLog(logFileInfo, e.getMessage + "[delete add failure]")
+  }
 
   /**
     * 执行更新操作
- *
     * @param  sql sql语句
+    *
     */
   def execUpdate(sql: String): Try[Int] = {
 
@@ -117,7 +137,7 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 }
 
 // MysqlHandle伴生对象
-object MysqlHandle {
+object MysqlHandler {
 
   def apply(connect: Connection):  MysqlHandler = {
     new MysqlHandler(connect)
@@ -134,7 +154,6 @@ object MysqlHandle {
 
 /**
   * 数据库连接池（集群模式需广播连接池）
- *
   * @param xmlHandle  配置
   * @param isTestOrNot 是否使用测试数据库
   */
@@ -180,11 +199,7 @@ class MysqlPool private(val xmlHandle: XMLConfig, val isTestOrNot: Boolean = tru
       config.setIdleMaxAgeInMinutes(3)
     }
 
-    /**
-      * 获取连接
- *
-      * @author wukun
-      */
+    // get connection
     def getConnect: Option[Connection] = {
 
       var connect: Option[Connection] = null
