@@ -3,9 +3,9 @@ package usecase
 import java.sql.ResultSet
 
 import com.bigchange.config.XMLConfig
+import com.bigchange.spark.Spark
 import com.bigchange.ssql.MysqlHandler
 import com.bigchange.util.TimeUtil
-import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success}
@@ -85,8 +85,7 @@ object SHRealTimeSearchAndVisitCountByHour {
 
   }
 
-
-  val sc = SparkContext.getOrCreate(new SparkConf().setMaster("local").setAppName("Test"))
+  val sc = Spark.apply("local", "Test", 60).sc
 
   def main(args: Array[String]) {
 

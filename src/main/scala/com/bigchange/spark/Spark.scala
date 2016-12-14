@@ -28,11 +28,14 @@ class Spark(master: String, appName:String, batchDuration: Int) {
 // 伴生对象
 object Spark {
 
-  private  var sparkHandler: Spark = null
+  private var sparkHandler: Spark = null
 
   def apply(master: String, appName: String, batchDuration: Int): Spark = {
+
     if(sparkHandler == null) sparkHandler = new Spark(master, appName, batchDuration)
+
     sparkHandler
+
   }
 
   def getInstance = sparkHandler
