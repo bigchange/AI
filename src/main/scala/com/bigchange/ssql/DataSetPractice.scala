@@ -1,17 +1,14 @@
 package com.bigchange.ssql
 
-import org.apache.spark.sql.SparkSession
-
 /**
   * Created by C.J.YOU on 2016/11/18.
+  * Spark sql Practice - SparkSession
   */
 object DataSetPractice {
 
-  val warehouseLocation = "spark-warehouse"
+ /* val warehouseLocation = "spark-warehouse"
 
-  val spark = SparkSession.builder()
-    .appName("SSQL")
-    .master("local")
+  val spark = Spark.apply("local", "SSQL", 60).sessionBuilder
     .config("spark.some.config.option", "some-value")
     .config("spark.sql.warehouse.dir", "spark-warehouse")
     .enableHiveSupport()
@@ -52,6 +49,6 @@ object DataSetPractice {
     .option("dbtable", "schema.tablename")
     .option("user", "username")
     .option("password", "password")
-    .load()
+    .load()*/
 
 }

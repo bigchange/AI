@@ -1,7 +1,6 @@
 package com.bigchange.spark
 
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.SparkSession
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 /**
@@ -21,7 +20,7 @@ class Spark(master: String, appName:String, batchDuration: Int) {
 
   val sc = ssc.sparkContext
 
-  val sessionBuilder = SparkSession.builder().appName(appName).master(master)
+  // val sessionBuilder = SparkSession.builder().appName(appName).master(master)
 
 
 }

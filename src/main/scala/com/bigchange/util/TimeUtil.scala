@@ -22,7 +22,9 @@ object TimeUtil {
 
   def getTimeStamp: Long = System.currentTimeMillis()
 
-  def formatTimeStampToHour(ts: String) = sdf.format(new Date(ts.toLong)).split("-").slice(0, 4).mkString("-")
+  def formatTimeStamp(ts: String, start: Int, end:Int) = sdf.format(new Date(ts.toLong)).split("-").slice(start, end).mkString("-")
+
+  def formatTimeStampToHour(ts: String, length: Int) = sdf.format(new Date(ts.toLong)).split("-").slice(0, length).mkString("-")
 
 
 

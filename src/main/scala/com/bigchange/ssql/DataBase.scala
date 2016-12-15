@@ -56,6 +56,7 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
       Class.forName(xml.getElem("MYSQL", "driver"))
 
       conn = DriverManager.getConnection(if(url.isEmpty) xml.getElem("MYSQL", "url") else url , parameter._1, parameter._2)
+
       getStatement
 
     } catch {
@@ -72,9 +73,6 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
         errorLog(logFileInfo, e.getMessage)
         System.exit(-1)
     }
-
-    this
-
   }
 
   def addCommand(sql: String): Try[Unit] = {
