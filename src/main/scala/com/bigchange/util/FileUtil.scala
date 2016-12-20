@@ -2,6 +2,8 @@ package com.bigchange.util
 
 import java.io._
 
+import com.kunyan.util.TimeUtil
+
 
 /**
   * Created by C.J.YOU on 2016/1/14.
@@ -108,6 +110,16 @@ object FileUtil {
     }
     writer.flush()
     writer.close()
+
+  }
+
+  def saveData(rootDir:String, data:Array[String]):Unit = {
+
+    val dataDir = rootDir + "/" + TimeUtil.getDay
+    val dataFile = dataDir + "/" + TimeUtil.getCurrentHour
+    FileUtil.mkDir(dataDir)
+    FileUtil.createFile(dataFile)
+    FileUtil.writeToFile(dataFile, data, isAppend = true)
 
   }
 

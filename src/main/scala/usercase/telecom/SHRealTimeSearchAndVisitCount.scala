@@ -15,6 +15,7 @@ import scala.util.{Failure, Success}
 /**
   * Created by C.J.YOU on 2016/12/14.
   * 统计2016-11月实时搜索和查看的数据（从数据库中读stock_visit_old 和 stock_search_old）
+  * 对比离线 和 实时 热度数据
   */
 object SHRealTimeSearchAndVisitCount {
 
