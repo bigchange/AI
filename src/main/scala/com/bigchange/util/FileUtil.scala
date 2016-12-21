@@ -2,8 +2,6 @@ package com.bigchange.util
 
 import java.io._
 
-import com.kunyan.util.TimeUtil
-
 
 /**
   * Created by C.J.YOU on 2016/1/14.
