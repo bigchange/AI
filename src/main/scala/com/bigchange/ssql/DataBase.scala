@@ -31,9 +31,10 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 
   def getConnection = conn
 
-  private def getStatement  =  {
-     if(statement == null)
-       statement = conn.createStatement()
+  private def getStatement: Unit  =  {
+
+     if(statement == null) statement = conn.createStatement()
+
   }
 
   def this() = this(null)
@@ -75,6 +76,12 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
     }
   }
 
+  /**
+    * 批量 执行 sql 语句，进行数据库操作
+    * 与 batchExec() 结合使用
+    * @param sql sql 语句
+    * @return 返回状态（执行成功状态: 通过 batchExec() 返回）
+    */
   def addCommand(sql: String): Try[Unit] = {
 
     val ret = Try(statement.addBatch(sql))
@@ -82,7 +89,13 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
     ret
   }
 
-  // 执行sql 语句返回结果
+  def batchExec() = {
+
+    Try(statement.executeBatch)
+
+  }
+
+  // 执行 sql 语句返回结果
   def executeQuery(sql: String): Try[ResultSet] = {
 
     Try(statement.executeQuery(sql))
@@ -108,11 +121,6 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 
     ret
   }
-  execInsertInto(
-    "sql"
-  ) recover {
-    case e: Exception => warnLog(logFileInfo, e.getMessage + "[delete add failure]")
-  }
 
   /**
     * 执行更新操作
@@ -130,6 +138,19 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
     })
 
     ret
+  }
+
+  /**
+    * 调用 存储过程 进行数据操作
+    * call("{ call procedure(?,?,....)}")
+    * @param procedure  存储过程
+    * @return 返回CallableStatement 可进行参数设置 和 执行 操作
+    */
+  def call(procedure:String) = {
+
+    // 创建存储过程
+    Try(conn.prepareCall(procedure))
+
   }
 
 }
