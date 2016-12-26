@@ -45,7 +45,7 @@ object GraphOperation {
 
     // 定义 edge 的 RDD
     val relationships: RDD[Edge[String]] = ctx.parallelize(Array(
-      Edge(1L, 2L, "advisor"),
+      Edge( 1L, 2L, "advisor"),
       Edge(1L, 3L, "advisor"),
       Edge(2L, 3L, "friend"),
       Edge(3L, 2L, "friend"),

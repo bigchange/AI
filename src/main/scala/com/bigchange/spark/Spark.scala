@@ -20,7 +20,7 @@ class Spark(master: String, appName:String, batchDuration: Int) {
 
   val sc = ssc.sparkContext
 
-  // val sessionBuilder = SparkSession.builder().appName(appName).master(master)
+  // val sessionBuilder = SparkSession.builder().appName(appName).master(master)  // @spark 2.0+
 
 
 }
