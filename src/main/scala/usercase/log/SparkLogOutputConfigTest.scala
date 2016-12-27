@@ -8,7 +8,7 @@ import scala.util.{Failure, Success, Try}
 /**
   * Created by C.J.YOU on 2016/12/15.
   */
-object SparkLogTest extends CLogger{
+object SparkLogOutputConfigTest extends CLogger{
 
   val sc = Spark.apply("local","SparkLogTest", 60).sc
 

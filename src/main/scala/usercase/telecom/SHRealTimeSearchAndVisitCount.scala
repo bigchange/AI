@@ -61,7 +61,7 @@ object SHRealTimeSearchAndVisitCount {
 
   def dateFormat(array: Array[String], length:Int) = {
 
-    Array(array(0), TimeUtil.formatTimeStampToHour(array(1) + "000", length), array(2))
+    Array(array(0), TimeUtil.formatTimeStamp(array(1) + "000", 0, 4), array(2))
 
   }
 
