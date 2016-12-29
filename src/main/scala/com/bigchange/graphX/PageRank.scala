@@ -1,4 +1,4 @@
-package com.bigchange.graphX
+package com.bigchange.graphx
 
 import org.apache.spark.{SparkContext, SparkConf}
 

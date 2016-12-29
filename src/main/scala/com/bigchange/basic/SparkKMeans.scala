@@ -25,7 +25,6 @@ import org.apache.spark.{SparkConf, SparkContext}
 
 /**
  * K-means clustering.
- *
  * This is an example implementation for learning how to use Spark. For more conventional use,
  * please refer to org.apache.spark.mllib.clustering.KMeans
  */
