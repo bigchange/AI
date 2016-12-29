@@ -23,7 +23,6 @@ import java.util.Random
 import scala.math.exp
 import breeze.linalg.{DenseVector, Vector}
 import org.apache.spark._
-import org.apache.spark.examples.SparkHdfsLR.DataPoint
 
 /**
  * Logistic regression based classification.
@@ -86,7 +85,7 @@ object SparkLR {
     val sc = new SparkContext(sparkConf)
     val numSlices = if (args.length > 0) args(0).toInt else 2
     // random data
-    val points = sc.parallelize(generateData, numSlices).cache()
+    // val points = sc.parallelize(generateData, numSlices).cache()
 
     // 指定data training
     val lines = sc.textFile(if(args.length > 1) args(1) else "")
