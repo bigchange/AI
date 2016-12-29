@@ -48,7 +48,7 @@ object SparkStreamingLogAnalysis {
 
     val sc = Spark.apply("local","SparkStreamingLogAnalysis", 60).sc
 
-    val data = sc.textFile("F:\\datatest\\app-20161226151613-5523.inprogress").map{ x =>
+    val data = sc.textFile("app-20161227113905-5603.inprogress").map{ x =>
 
       var ji = ""
       var st = ""
@@ -97,7 +97,7 @@ object SparkStreamingLogAnalysis {
 
     data.foreach(println)
 
-    FileUtil.writeToFile(path = "F:\\datatest\\app-20161226151613-5523.result", data.collect(), isAppend = true)
+    FileUtil.writeToFile(path = "app-20161227113905-5603.result", data.collect(), isAppend = true)
 
 
   }
