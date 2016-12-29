@@ -5,6 +5,7 @@ import org.apache.log4j.{Logger, PropertyConfigurator}
 /**
   * Created by C.J.YOU on 2016/1/15.
   * 打log日志的类需要继承此trait
+  * spark 有实现对应的log ->  org.apache.spark.internal.Logging
   */
 trait CLogger extends Serializable{
 
