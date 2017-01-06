@@ -82,7 +82,7 @@ object Analytics {
         val pr = (numIterOpt match {
           case Some(numIter) => PageRank.run(graph, numIter)
           case None => PageRank.runUntilConvergence(graph, tol)
-        }).vertices.cache()
+    }).vertices.cache()
 
         println("GRAPHX: Total rank: " + pr.map(_._2).reduce(_ + _))
 

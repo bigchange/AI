@@ -7,7 +7,7 @@ import org.apache.log4j.{Logger, PropertyConfigurator}
   * 打log日志的类需要继承此trait
   * spark 有实现对应的log ->  org.apache.spark.internal.Logging
   */
-trait CLogger extends Serializable{
+trait CLogger extends Serializable {
 
 
   // PropertyConfigurator.configure("/home/telecom/conf/log4j.properties")
