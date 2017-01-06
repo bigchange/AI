@@ -21,9 +21,7 @@ package com.bigchange.basic
 import java.util.Random
 
 import scala.math.exp
-
-import breeze.linalg.{Vector, DenseVector}
-
+import breeze.linalg.{DenseVector, Vector}
 import org.apache.spark._
 
 /**
@@ -35,6 +33,7 @@ import org.apache.spark._
  * org.apache.spark.mllib.classification.LogisticRegressionWithLBFGS based on your needs.
  */
 object SparkLR {
+
   val N = 10000  // Number of data points
   val D = 10   // Numer of dimensions
   val R = 0.7  // Scaling factor
@@ -43,6 +42,19 @@ object SparkLR {
 
   // 定义操作的对象，如同：LabelPoint 的形式方便模型的处理
   case class DataPoint(x: Vector[Double], y: Double)
+
+  // read data from specific format
+  // data format：　label [ Dimension.... ]
+  def parsePoint(line: String): DataPoint = {
+    val tok = new java.util.StringTokenizer(line, " ")
+    val y = tok.nextToken.toDouble
+    val x = new Array[Double](D)
+    var i = 0
+    while (i < D) {
+      x(i) = tok.nextToken.toDouble; i += 1
+    }
+    DataPoint(new DenseVector(x), y)
+  }
 
   def generateData: Array[DataPoint] = {
     //  生成 单个 dataPoint
@@ -72,7 +84,12 @@ object SparkLR {
     val sparkConf = new SparkConf().setAppName("SparkLR").setMaster("local")
     val sc = new SparkContext(sparkConf)
     val numSlices = if (args.length > 0) args(0).toInt else 2
-    val points = sc.parallelize(generateData, numSlices).cache()
+    // random data
+    // val points = sc.parallelize(generateData, numSlices).cache()
+
+    // 指定data training
+    val lines = sc.textFile(if(args.length > 1) args(1) else "")
+    val points = lines.map(parsePoint).cache()
 
     // Initialize w to a random value
     var w = DenseVector.fill(D){ 2 * rand.nextDouble - 1}
@@ -84,7 +101,7 @@ object SparkLR {
 
       println("On iteration " + i)
       val gradient = points.map { p =>
-        p.x * (1 / (1 + exp( -p.y * (w.dot(p.x)))) - 1) * p.y
+        p.x * (1 / (1 + exp( -p.y * w.dot( p.x ) )) - 1) * p.y
       }.reduce(_ + _)
       w -= gradient
     }

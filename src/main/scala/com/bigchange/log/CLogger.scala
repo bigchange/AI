@@ -5,13 +5,15 @@ import org.apache.log4j.{Logger, PropertyConfigurator}
 /**
   * Created by C.J.YOU on 2016/1/15.
   * 打log日志的类需要继承此trait
+  * spark 有实现对应的log ->  org.apache.spark.internal.Logging
   */
-trait CLogger extends Serializable{
+trait CLogger extends Serializable {
 
 
   // PropertyConfigurator.configure("/home/telecom/conf/log4j.properties")
 
-  private  val logger = Logger.getLogger("CLogger")
+  val loggerName = this.getClass.getName
+  lazy val logger = Logger.getLogger(loggerName)
 
   def logConfigure(path: String) = PropertyConfigurator.configure(path)
 
@@ -34,7 +36,7 @@ trait CLogger extends Serializable{
                info: (String, String),
                msg: String) {
 
-    logger.warn("{}[{}]：{}", info._1, info._2, msg)
+    logger.warn("{}[{}]:{}", info._1, info._2, msg)
 
   }
 
@@ -42,13 +44,13 @@ trait CLogger extends Serializable{
                 info: (String, String),
                 msg: String) {
 
-    logger.error("{}[{}]：{}", info._1, info._2, msg)
+    logger.error("{}[{}]:{}", info._1, info._2, msg)
 
   }
 
   /**
     * 获取日志所在的文件信息
-    * @return
+    * @return (文件名， 位置)
     */
   def logFileInfo: (String, String) = (Thread.currentThread.getStackTrace()(2).getFileName, Thread.currentThread.getStackTrace()(2).getLineNumber.toString)
 

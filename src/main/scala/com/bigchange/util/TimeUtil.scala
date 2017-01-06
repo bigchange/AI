@@ -4,17 +4,13 @@ import java.text.SimpleDateFormat
 import java.util.{Calendar, Date}
 
 /**
-  * Created by Administrator on 2016/1/8.
+  * Created by C.J.YOU on 2016/1/8.
   */
 object TimeUtil {
 
-  def getDay: String = {
-    val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd")
-    val date: String = sdf.format(new Date)
+  val sdf: SimpleDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss")
 
-    date
-
-  }
+  def getDay: String = sdf.format(new Date).split("-").slice(0, 3).mkString("-")
 
   def getCurrentHour: Int = {
 
@@ -25,5 +21,9 @@ object TimeUtil {
   }
 
   def getTimeStamp: Long = System.currentTimeMillis()
+
+  def formatTimeStamp(ts: String, start: Int, end:Int) = sdf.format(new Date(ts.toLong)).split("-").slice(start, end).mkString("-")
+
+
 
 }

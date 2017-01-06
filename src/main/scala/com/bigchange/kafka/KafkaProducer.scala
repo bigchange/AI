@@ -44,7 +44,7 @@ class KafkaProducer(parameter: Parameter) {
 
 object KafkaProducer {
 
-    private  var kp: KafkaProducer = _
+    private  var kp: KafkaProducer = null
 
     def apply(parameter: Parameter): KafkaProducer = {
 

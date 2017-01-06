@@ -29,7 +29,7 @@ class XMLConfig(xmlFilePath:String) {
 // 伴生对象
 object XMLConfig {
 
-  var xmlHandle: XMLConfig =  null
+  private  var xmlHandle: XMLConfig =  null
 
   /**
     * 获取全局唯一的操作句柄实例
@@ -38,11 +38,14 @@ object XMLConfig {
     */
   def apply(xmlFilePath: String)  = {
 
-    if (xmlHandle == null) xmlHandle = new XMLConfig(xmlFilePath) else xmlHandle
+    if (xmlHandle == null)
+      xmlHandle = new XMLConfig(xmlFilePath)
+
+    xmlHandle
 
   }
 
-  def getInstance = XMLConfig
+  def getInstance = xmlHandle
 
   // 如何动态增加 外部参数变量
   def getAllXmlParameter = xmlHandle.allParameter

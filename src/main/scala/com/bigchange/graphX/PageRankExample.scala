@@ -1,4 +1,4 @@
-package com.bigchange.graphX
+package com.bigchange.graphx
 
 import org.apache.spark.{SparkContext, SparkConf}
 
@@ -9,7 +9,7 @@ import org.apache.spark.{SparkContext, SparkConf}
   *  如果给每个页面一个随机PageRank值（非0），那么经过不断的重复计算，这些页面的PR值会趋向于稳定，也就是收敛的状态
   *  在Sergey Brin和Lawrence Page的1998年原文中给每一个页面设定的最小值是1-d，而不是这里的：(1-d)/N
   */
-object PageRank {
+object PageRankExample {
 
   // data format: # FromNodeId	ToNodeId
 
@@ -42,7 +42,7 @@ object PageRank {
       .cache()
     // 每个页面一个随机PageRank值 : 1.0
     var ranks = links
-      .mapValues(v => 1.0)
+      .mapValues(v => 1.0)  // 与 map 不同， mapValues 不改变分区的情况， 与后续的join 操作 会变得更加高效一点
 
     /**
       *  println("ranks:"+ranks.collect().foreach(println))
@@ -57,13 +57,14 @@ object PageRank {
         .values
         .flatMap { case (urls, rank) =>
         val size = urls.size
-        urls.map(url => (url, rank / size))
-      }
+        urls.map(url => (url, rank / size)) } // 每个url的贡献值平均
+
       // 每一个页面设定的最小值(0.15)
-      ranks = contribs.reduceByKey(_ + _).mapValues(0.15 + 0.85 * _)
+      ranks = contribs.reduceByKey(_ + _).mapValues(0.15 + 0.85 * _)  // 可根据具体情况调整 公式
+
     }
 
-    val output = ranks.sortBy(t => t._2, false).take(100) // 降序输出排名
+    val output = ranks.sortBy(t => t._2, ascending = false).take(100) // 降序输出排名
     output.foreach(tup => println(tup._1 + " has rank: " + tup._2 + "."))
     ctx.stop()
   }
