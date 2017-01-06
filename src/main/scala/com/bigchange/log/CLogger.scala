@@ -12,7 +12,8 @@ trait CLogger extends Serializable {
 
   // PropertyConfigurator.configure("/home/telecom/conf/log4j.properties")
 
-  private  val logger = Logger.getLogger(classOf[CLogger])
+  val loggerName = this.getClass.getName
+  lazy val logger = Logger.getLogger(loggerName)
 
   def logConfigure(path: String) = PropertyConfigurator.configure(path)
 

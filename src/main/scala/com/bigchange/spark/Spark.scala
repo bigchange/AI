@@ -7,7 +7,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
   * Created by C.J.YOU on 2016/12/14.
   * spark 入口封装
   */
-class Spark(master: String, appName:String, batchDuration: Int) {
+class Spark(master: String, appName:String, batchDuration: Int, checkpoint_dir:String = ".") {
 
   // conf的key=value具体配置放在shell脚本中传入
   // --conf "key=value"
@@ -16,8 +16,20 @@ class Spark(master: String, appName:String, batchDuration: Int) {
 
   val sparkConf = new SparkConf().setMaster(master).setAppName(appName)
 
-  val ssc = new StreamingContext(sparkConf, Seconds(batchDuration))
+  // checkout point
+  def createStreamingContext: () => StreamingContext = {
+    val ssc = new StreamingContext(sparkConf, Seconds(60))
+    ssc.checkpoint(checkpoint_dir)
+    () => ssc
+  }
 
+  // 2.0.2 使用SparkSession
+  @deprecated
+  val ssc = StreamingContext.getOrCreate(checkpoint_dir, creatingFunc = createStreamingContext)
+
+  // val ssc = new StreamingContext(sparkConf, Seconds(batchDuration))
+
+  @deprecated
   val sc = ssc.sparkContext
 
   // val sessionBuilder = SparkSession.builder().appName(appName).master(master)  // @spark 2.0+
