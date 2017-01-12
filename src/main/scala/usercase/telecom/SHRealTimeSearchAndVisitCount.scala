@@ -137,6 +137,7 @@ object SHRealTimeSearchAndVisitCount {
   def getThreeMonthPerDayCmp(args:Array[String], typeS: String)  = {
 
     val Array(nineP, tenP, elevP) = args
+
     val savePath = "F:\\datatest\\telecom\\wokong\\上海数据统计文件\\离线和实时热度数据对比"
 
     val nine = dataMap(sc.textFile(nineP)).map(x => ((x._1._1, x._1._2.split("-").slice(2, 3).mkString("->")), x._2))

@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 
-import com.bigchange.util.FileUtil
+import com.bigchange.util.{FileUtil}
 import org.apache.spark.mllib.classification._
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.feature.StandardScaler
@@ -115,7 +115,7 @@ object ObjectRecognitionInImages {
 
       val result = predictionAndLabels.filter(x => x._1 != x._2).map(x=> (x._1.toLong, x._2.toLong)).map(x => (labeledMapReverse(x._1),labeledMapReverse(x._2))).map(x => x._1 + "\t" + x._2).collect()
 
-      FileUtil.writeToFile("E:/github/lfw-result",result)
+      FileUtil.normalFileWriter("E:/github/lfw-result",result)
 
       val metrics = new MulticlassMetrics(predictionAndLabels)
       println("precision:" + metrics.precision)

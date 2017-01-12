@@ -3,7 +3,7 @@ package usercase.telecom
 import com.bigchange.config.Dom4jParser
 import com.bigchange.kafka.KafkaConsumer
 import com.bigchange.spark.Spark
-import com.bigchange.util.FileUtil
+import com.bigchange.util.{FileUtil}
 
 /**
   * Created by C.J.YOU on 2016/12/19.

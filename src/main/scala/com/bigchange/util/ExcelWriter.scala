@@ -11,94 +11,98 @@ import org.apache.spark.rdd.RDD
   * Created by C.J.YOU on 2017/1/11.
   * excel operation
   */
-object ExcelWriter  extends  Serializable {
+class ExcelWriter(rootDir: String, fileName: String)  extends  Serializable {
 
-  var rootDir = ""
+  private var writableBook: WritableWorkbook = null
 
-   // first type sheet
-  def sheetInit(sheet:WritableSheet) = {
+  private  val xssfwb = new XSSFWorkbook()
 
-    val label = new Label(0, 0, "股票") // 列，行
-    val label1 = new Label(1, 0, "小时")
-    val label2 = new Label(2, 0, "查看热度统计")
-    sheet.addCell(label)
-    sheet.addCell(label1)
-    sheet.addCell(label2)
+  /**
+    * 初始化sheet，设定header的行位置position 和 header 内容
+    * @param sheet WritableSheet sheet 类型
+    * @param position 位置
+    * @param header 标题
+    */
+  def sheetInit(sheet:WritableSheet, position: Int, header: Array[String]) = {
 
-  }
-
-   // second type sheet
-  def sheetRowInit(sheet: XSSFSheet): Unit =  {
-
-    val row = sheet.createRow(0)
-    // filled first column
-    row.createCell(0).setCellValue("股票")
-    // filled first column
-    row.createCell(1).setCellValue("小时")
-
-    row.createCell(2).setCellValue("查看热度统计")
+    header.zipWithIndex.foreach { case(labelText, index) =>
+      val label = new Label(index, position, labelText) // 列，行
+      sheet.addCell(label)
+    }
 
   }
 
-  def  createXLSX(data: RDD[(String,Iterable[((String, String),Int)])]) = {
+  /**
+    * 初始化sheet，设定header的行位置position 和 标题内容
+    * @param sheet XSSFSheet sheet 类型
+    * @param position 位置
+    * @param header 标题
+    */
+  def sheetRowInit(sheet: XSSFSheet, position: Int, header: Array[String]): Unit =  {
 
-    val book = new XSSFWorkbook()
+    val row = sheet.createRow(position)
 
-    data.sortBy(_._1).collect().foreach { x =>
+     header.zipWithIndex.foreach { case(label, index) =>
+       row.createCell(index).setCellValue(label)
+     }
 
-      val path = x._1.split("-").slice(0, 2).mkString("-")  // 按月
+  }
 
-      val os = new FileOutputStream(rootDir + "/" + path + ".xlsx", true)
+  // 根据指定数据格式填充sheet的方法有待实现
 
-      if(book.getSheet(x._1) != null) {
 
-        val sheet = book.createSheet(x._1)
+  /**
+    * 写入数据为xlsx文件, row限制13万
+    * @param data 数据内容
+    */
+  def  createXLSX(data: RDD[String]) = {
 
-        sheetRowInit(sheet)
+    val os = new FileOutputStream(rootDir + "/test.xlsx", true)
 
-        var i = 1
+    var i = 1
 
-        x._2.foreach { key =>
-          // create first sheet and for each row filled with specific value
-          val row = sheet.createRow(i)
-          // filled first column
-          row.createCell(0).setCellValue(key._1._1)
-          // and second column
-          row.createCell(1).setCellValue(key._1._2)
-          row.createCell(2).setCellValue(key._2.toString)
-          i += 1
-        }
-      }
+    data.foreach { x =>
 
-      // write to file
-      book.write(os)
-      // close I/0
+      val sheet = xssfwb.createSheet("sheet1")
+
+      sheetRowInit(sheet, 0, Array("stock","time","value"))
+
+      // create first sheet and for each row filled with specific value
+      val row = sheet.createRow(i)
+      row.createCell(0).setCellValue(x)
+      i += 1
+
+      xssfwb.write(os)
       os.close()
 
     }
+
   }
 
+  /**
+    * 写入数据到xls文件， row 限制在65536
+    * @param data 数据内容
+    */
   def createXLS(data: RDD[(String,Iterable[((String, String),Int)])]) = {
-
-    var book: WritableWorkbook = null
 
     var sheetNumber = 0
 
     data.sortBy(_._1).foreach { x =>
 
       val path = x._1.split("-").slice(0, 2).mkString("-")  // 按月
+
       val file = new File(rootDir + "/" + path + ".xls")
-      // val book = Workbook.createWorkbook(file)
 
       if(!file.exists()) {
+
         file.createNewFile()
-        book = Workbook.createWorkbook(file)
+        writableBook = Workbook.createWorkbook(new File(rootDir + "/" + fileName))
         sheetNumber = 0
 
       } else {
 
-        book = Workbook.createWorkbook(file, Workbook.getWorkbook(file))
-        val  numberOfSheet = book.getNumberOfSheets
+        writableBook = Workbook.createWorkbook(file, Workbook.getWorkbook(file))
+        val  numberOfSheet = writableBook.getNumberOfSheets
         sheetNumber = numberOfSheet
 
       }
@@ -106,26 +110,22 @@ object ExcelWriter  extends  Serializable {
       val writerData = x._2
       println("writerData:" + writerData.size)
 
-      var sheet = book.createSheet(x._1, sheetNumber)
-      val label = new Label(0, 0, "股票") // 列，行
-      val label1 = new Label(1, 0, "小时")
-      val label2 = new Label(2, 0, "查看热度统计")
-      sheet.addCell(label)
-      sheet.addCell(label1)
-      sheet.addCell(label2)
+      var sheet = writableBook.createSheet(x._1, sheetNumber)
+
+      // 初始化新sheet的模板
+      sheetInit(sheet, 0, Array("stock","time","value"))
 
       var i = 1
-      var k = 0
-
+      var k = 0 // 超出行限制另建sheet
       writerData.foreach { key =>
 
         if(i > 60000) {
           sheetNumber += 1
           k = k + 1
-          book.createSheet(x._1 + "-" + k, sheetNumber)
-          sheet = book.getSheet(sheetNumber)
+          writableBook.createSheet(x._1 + "-" + k, sheetNumber)
+          sheet = writableBook.getSheet(sheetNumber)
           // 初始化新sheet的模板
-          sheetInit(sheet)
+          sheetInit(sheet, 0, Array("stock","time","value"))
           i = 0
         }
         val stockName = new Label(0, i, key._1._1)
@@ -136,10 +136,11 @@ object ExcelWriter  extends  Serializable {
         sheet.addCell(number)
         i += 1
       }
-      book.write()
-      book.close()
+      writableBook.write()
+      writableBook.close()
       sheetNumber += 1
 
     }
   }
 }
+

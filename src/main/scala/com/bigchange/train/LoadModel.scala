@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO
 
-import com.bigchange.util.FileUtil
+import com.bigchange.util.{FileUtil}
 import org.apache.spark.mllib.classification.NaiveBayesModel
 import org.apache.spark.mllib.evaluation.MulticlassMetrics
 import org.apache.spark.mllib.feature.StandardScaler
@@ -57,7 +57,7 @@ object LoadModel {
     val labeledMapReverse = sc.textFile("F:/SmartData-X/DataSet/CIFAR-10/data/batches.meta").map(_.split("\t")).map(x => x(0).toDouble -> x(1)).collectAsMap()
     val predictionAndLabels = testData.map(p => (model.predict(p.features), p.label))
     val result = predictionAndLabels.filter(x => x._1 != x._2).map(x=> (x._1.toLong, x._2.toLong)).map(x => (labeledMapReverse(x._1),labeledMapReverse(x._2))).map(x => x._1 + "\t" + x._2).collect()
-    FileUtil.writeToFile("E:/github/CIFAR-10",result)
+    FileUtil.normalFileWriter("E:/github/CIFAR-10",result)
     val metrics = new MulticlassMetrics(predictionAndLabels)
     println("precision:" + metrics.precision)
     println("加权F-指标：" + metrics.weightedFMeasure) // 0.28
@@ -87,7 +87,7 @@ object LoadModel {
 
     val result = predictionAndLabels.filter(x => x._1 != x._2).map(x=> (x._1.toLong, x._2.toLong)).map(x => (labeledMapReverse(x._1),labeledMapReverse(x._2))).map(x => x._1 + "\t" + x._2).collect()
 
-    FileUtil.writeToFile("E:/github/CIFAR-10",result)
+    FileUtil.normalFileWriter("E:/github/CIFAR-10",result)
 
     val metrics = new MulticlassMetrics(predictionAndLabels)
     println("加权F-指标：" + metrics.weightedFMeasure) // 加权F-指标：0.781142389463205

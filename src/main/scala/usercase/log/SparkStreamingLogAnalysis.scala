@@ -97,7 +97,7 @@ object SparkStreamingLogAnalysis {
 
     data.foreach(println)
 
-    FileUtil.writeToFile(path = "app-20161227113905-5603.result", data.collect(), isAppend = true)
+    FileUtil.normalFileWriter(path = "app-20161227113905-5603.result", data.collect(), isAppend = true)
 
 
   }
