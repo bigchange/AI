@@ -54,7 +54,7 @@ object HBaseUtil extends HBase with CLogger {
     val hbaseTableName = TableName.valueOf(tableName)
 
     if (!connection.getAdmin.tableExists(hbaseTableName))
-      createHBaseTable(hbaseTableName, List("info"), connection)
+      new HTable(hbaseTableName, List("info"), connection)
 
     val table = connection.getTable(hbaseTableName)
 

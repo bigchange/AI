@@ -47,6 +47,11 @@ class HBase {
 
   }
 
+  /**
+    * 配置HBase的参数信心
+    * @param property 参数
+    * @return Configuration
+    */
   def setConfiguration(property: Map[String, String]) = {
 
     hBaseConfiguration = HBaseConfiguration.create
@@ -62,7 +67,7 @@ class HBase {
   }
 
   /**
-    * 获取hbase的连接器
+    * 获取HBase的连接器
     * @return connection
     */
   def getConnection: Connection = {
@@ -83,7 +88,7 @@ class HBase {
     * @param columnFamilies 列族的声明
     * @param connection 连接器
     */
-  def createHBaseTable(tableName: TableName, columnFamilies:List[String], connection: Connection): Table ={
+  def createHBaseTable(tableName: TableName, columnFamilies:List[String], connection: Connection): Table = {
 
     // connection.getAdmin.createTable(new HTableDescriptor(tableName).addFamily(new HColumnDescriptor(columnFamily).setMaxVersions(3)))
 
@@ -106,6 +111,7 @@ class HBase {
 
   }
 
+
   /**
     * 判断 row key 是否存在
     * @param row rowKey
@@ -126,7 +132,10 @@ class HBase {
 
   }
 
-  def getConfiguration = if(hBaseConfiguration == null) setDefaultConfiguration else  hBaseConfiguration
+  def getConfiguration = if(hBaseConfiguration == null) {
+      warn("hbase setDefaultConfiguration....")
+      setDefaultConfiguration
+    } else  hBaseConfiguration
 
   def setDefaultConfiguration = {
 
