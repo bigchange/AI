@@ -4,12 +4,7 @@ import com.bigchange.hbase.HBase
 import com.bigchange.log.CLogger
 import org.apache.hadoop.hbase.TableName
 import org.apache.hadoop.hbase.client._
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable
-import org.apache.hadoop.hbase.mapreduce.TableInputFormat
-import org.apache.hadoop.hbase.protobuf.ProtobufUtil
-import org.apache.hadoop.hbase.protobuf.generated.ClientProtos
-import org.apache.hadoop.hbase.util.{Base64, Bytes}
-import org.apache.spark.SparkContext
+import org.apache.hadoop.hbase.util.Bytes
 
 import scala.collection.mutable
 
@@ -17,8 +12,6 @@ import scala.collection.mutable
   * Created by C.J.YOU on 2016/3/21.
   */
 object HBaseUtil extends HBase with CLogger {
-
-  private val hBaseConfiguration = getConfiguration
 
   private lazy val connection = getConnection
 
@@ -61,7 +54,7 @@ object HBaseUtil extends HBase with CLogger {
     val hbaseTableName = TableName.valueOf(tableName)
 
     if (!connection.getAdmin.tableExists(hbaseTableName))
-      createHbaseTable(hbaseTableName, List("info"), connection)
+      createHBaseTable(hbaseTableName, List("info"), connection)
 
     val table = connection.getTable(hbaseTableName)
 
@@ -95,30 +88,6 @@ object HBaseUtil extends HBase with CLogger {
     }
 
     htable.get(get)
-
-  }
-
-  /**
-    * 通过rdd 形式批量获取hbase数据
-    *
-    * @param sc sparkContext
-    * @param property 获取数据的属性：tableName, family, qualifiers , ...
-    * @param scan  scan 定义
-    * @return  RDD[Result]
-    */
-  def getHbaseDataThroughNewAPI(sc: SparkContext, property: Map[String, String], scan: Scan) = {
-
-    val proto:ClientProtos.Scan = ProtobufUtil.toScan(scan)
-    val scanToString = Base64.encodeBytes(proto.toByteArray)
-    hBaseConfiguration.set(TableInputFormat.SCAN, scanToString)
-
-    property.foreach { case(key, value) =>
-      hBaseConfiguration.set(key, value)
-    }
-
-    val hbaseRDD = sc.newAPIHadoopRDD(hBaseConfiguration, classOf[TableInputFormat], classOf[ImmutableBytesWritable], classOf[Result]).map(_._2 )
-
-    hbaseRDD
 
   }
 
