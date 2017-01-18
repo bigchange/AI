@@ -72,6 +72,8 @@ libraryDependencies += "org.apache.poi" % "poi" % "3.9"
 // https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl
 libraryDependencies += "net.sourceforge.jexcelapi" % "jxl" % "2.6.12"
 
+libraryDependencies += "com.typesafe.akka" % "akka-actor_2.11" % "2.4.9-RC2"
+
 
 // https://mvnrepository.com/artifact/org.deeplearning4j/dl4j-caffe
 // libraryDependencies += "org.deeplearning4j" % "dl4j-caffe" % "0.5.0"
