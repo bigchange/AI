@@ -42,11 +42,28 @@ object StreamingReceiveDataFromKafka {
     val Array(brokers, topics, zkhosts, checkpointDir, groupId) = args
 
     def createStreamingContext: () => StreamingContext = {
+
       val ssc = new StreamingContext(sparkConf, Seconds(60))
+
+      // NOTE: You have to create dstreams inside the method
+      // See http://stackoverflow.com/q/35090180/1305344
+
+      val lineData = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder] (
+        ssc,
+        kafkaParams = Map[String,String]("metadata.broker.list" -> brokers,"group.id" -> groupId,"zookeeper.connect" -> zkhosts,"serializer.class" -> "kafka.serializer.StringEncoder"),
+        topics = topics.split(",").toSet
+      )
+
+      val result = lineData.flatMap(x => x._2)
+
+      // data process procedure
+      // .....
+
       ssc.checkpoint(checkpointDir)
       () => ssc
     }
     val ssc = StreamingContext.getOrCreate(checkpointDir, createStreamingContext)
+
     val sc = ssc.sparkContext
 
     /*val numStream = 3
@@ -57,17 +74,9 @@ object StreamingReceiveDataFromKafka {
     ) }
     val lineData = ssc.union(streamNmuber)*/
 
-    val lineData = KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder] (
-      ssc,
-      kafkaParams = Map[String,String]("metadata.broker.list" -> brokers,"group.id" -> groupId,"zookeeper.connect" -> zkhosts,"serializer.class" -> "kafka.serializer.StringEncoder"),
-      topics = topics.split(",").toSet
-    )
-
-
-    val result = lineData.flatMap(x => x._2)
-
-    // data process procedure
-    // .....
+    // Start streaming processing
+    ssc.start
+    ssc.awaitTermination()
 
   }
 
