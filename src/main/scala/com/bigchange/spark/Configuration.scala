@@ -5,6 +5,7 @@ package com.bigchange.spark
   */
 class Configuration {
 
+  // accept type
   type T = (String, String)
 
   // streaming show completed batch size
