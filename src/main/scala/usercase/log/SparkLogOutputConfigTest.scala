@@ -27,7 +27,7 @@ object SparkLogOutputConfigTest extends CLogger{
         warn("this is warning log")
         info("this is info log")
         debug("this is debug log")
-        errorLog(logFileInfo, "this is errorLog")
+        errorLog("this is errorLog")
     }
 
 

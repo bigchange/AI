@@ -20,7 +20,7 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 
   private var conn = connection
 
-  private  var statement: Statement = null
+  private  var statement: Statement = getStatement
 
   def close() = {
 
@@ -31,9 +31,12 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 
   def getConnection = conn
 
-  private def getStatement: Unit  =  {
+  private def getStatement:  Statement =  {
 
-     if(statement == null) statement = conn.createStatement()
+     if(statement == null && conn != null)
+       statement = conn.createStatement()
+
+    statement
 
   }
 
@@ -51,27 +54,31 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 
     try {
 
-      val parameter = (xml.getElem("MYSQL", "user"), xml.getElem("MYSQL", "password"))
+      val parameter = (xml.getElem("mysql", "user"), xml.getElem("mysql", "password"))
       // 这个方法可以不必显示调用，判断标准为jar包的META-INF/services/目录的java.sql.Driver文件里是否包含
       // com.mysql.jdbc.Driver这行，在DriverManager被加载时的静态块中会遍历这个文件里的内容进行主动加载
-      Class.forName(xml.getElem("MYSQL", "driver"))
+      Class.forName(xml.getElem("mysql", "driver"))
 
-      conn = DriverManager.getConnection(if(url.isEmpty) xml.getElem("MYSQL", "url") else url , parameter._1, parameter._2)
+      conn = DriverManager.getConnection (
+        if(url.isEmpty) xml.getElem("mysql", "url") else url ,
+        parameter._1,
+        parameter._2
+      )
 
       getStatement
 
     } catch {
 
       case e: SQLException =>
-        errorLog(logFileInfo, e.getMessage + "[SQLException]")
+        errorLog(e.getMessage + "[SQLException]")
         System.exit(-1)
 
       case e: ClassNotFoundException =>
-        errorLog(logFileInfo, e.getMessage + "[ClassNotFoundException]")
+        errorLog(e.getMessage + "[ClassNotFoundException]")
         System.exit(-1)
 
       case e: Exception =>
-        errorLog(logFileInfo, e.getMessage)
+        errorLog(e.getMessage)
         System.exit(-1)
     }
   }
@@ -86,10 +93,12 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
 
     val ret = Try(statement.addBatch(sql))
 
+    batchExec()
+
     ret
   }
 
-  def batchExec() = {
+  private  def batchExec() = {
 
     Try(statement.executeBatch)
 
@@ -98,7 +107,9 @@ class MysqlHandler(connection: Connection) extends Serializable with  CLogger {
   // 执行 sql 语句返回结果
   def executeQuery(sql: String): Try[ResultSet] = {
 
-    Try(statement.executeQuery(sql))
+    val ps = connection.prepareStatement(sql)
+    Try(ps.executeQuery())
+    // Try(statement.executeQuery(sql))
 
   }
 
@@ -176,35 +187,38 @@ object MysqlHandler {
   * @param xmlHandle  配置
   * @param isTestOrNot 是否使用测试数据库
   */
-class MysqlPool private(val xmlHandle: XMLConfig, val isTestOrNot: Boolean = true) extends Serializable {
+class MysqlPool private (
+                          val xmlHandle: XMLConfig,
+                          val isTestOrNot: Boolean = true) extends Serializable with CLogger {
 
-    lazy val config = createConfig
+    private val config = createConfig
 
-    lazy val connPool = new BoneCP(config)
+    private val connPool = new BoneCP(config)
 
     /** 初始化数据库连接池 */
     def createConfig: BoneCPConfig = {
+
+      warnLog("mysql pool init....")
 
       val initConfig = new BoneCPConfig
 
       if(isTestOrNot) {
 
-        initConfig.setJdbcUrl(xmlHandle.getElem("mySql", "urltest"))
-        initConfig.setUsername(xmlHandle.getElem("mySql", "usertest"))
-        initConfig.setPassword(xmlHandle.getElem("mySql", "passwordtest"))
+        initConfig.setJdbcUrl(xmlHandle.getElem("mysql", "urlTest"))
+        initConfig.setUsername(xmlHandle.getElem("mysql", "userTest"))
+        initConfig.setPassword(xmlHandle.getElem("mysql", "passwordTest"))
 
       } else {
-        initConfig.setJdbcUrl(xmlHandle.getElem("mySql", "urlstock"))
-        initConfig.setUsername(xmlHandle.getElem("mySql", "userstock"))
-        initConfig.setPassword(xmlHandle.getElem("mySql", "passwordstock"))
+        initConfig.setJdbcUrl(xmlHandle.getElem("mysql", "url"))
+        initConfig.setUsername(xmlHandle.getElem("mysql", "user"))
+        initConfig.setPassword(xmlHandle.getElem("mysql", "password"))
       }
 
-      initConfig.setMinConnectionsPerPartition(Integer.parseInt(xmlHandle.getElem("mySql", "minconn")))
-      initConfig.setMaxConnectionsPerPartition(Integer.parseInt(xmlHandle.getElem("mySql", "maxconn")))
-      initConfig.setPartitionCount(Integer.parseInt(xmlHandle.getElem("mySql", "partition")))
-      initConfig.setConnectionTimeoutInMs(Integer.parseInt(xmlHandle.getElem("mySql", "timeout")))
+      initConfig.setMinConnectionsPerPartition(xmlHandle.getElem("mysql", "minConn").toInt)
+      initConfig.setMaxConnectionsPerPartition(xmlHandle.getElem("mysql", "maxConn").toInt)
+      initConfig.setPartitionCount(Integer.parseInt(xmlHandle.getElem("mysql", "partition")))
+      initConfig.setConnectionTimeoutInMs(Integer.parseInt(xmlHandle.getElem("mysql", "timeout")))
       initConfig.setConnectionTestStatement("select 1")
-      initConfig.setIdleConnectionTestPeriodInMinutes(Integer.parseInt(xmlHandle.getElem("mySql", "connecttest")))
 
       initConfig
 
@@ -220,6 +234,8 @@ class MysqlPool private(val xmlHandle: XMLConfig, val isTestOrNot: Boolean = tru
 
     // get connection
     def getConnect: Option[Connection] = {
+
+      warnLog("get Connection")
 
       var connect: Option[Connection] = null
 

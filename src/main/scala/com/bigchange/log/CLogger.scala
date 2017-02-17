@@ -13,6 +13,7 @@ trait CLogger extends Serializable {
   // PropertyConfigurator.configure("/home/telecom/conf/log4j.properties")
 
   val loggerName = this.getClass.getName
+
   lazy val logger = Logger.getLogger(loggerName)
 
   def logConfigure(path: String) = PropertyConfigurator.configure(path)
@@ -29,21 +30,18 @@ trait CLogger extends Serializable {
 
   /**
     * 自定义输出的日志格式
-    * @param info 标识
     * @param msg 消息
     */
-  def warnLog(
-               info: (String, String),
-               msg: String) {
+  def warnLog(msg: String) {
 
+    val info = logFileInfo
     logger.warn("{}[{}]:{}", info._1, info._2, msg)
 
   }
 
-  def errorLog(
-                info: (String, String),
-                msg: String) {
+  def errorLog(msg: String) {
 
+    val info = logFileInfo
     logger.error("{}[{}]:{}", info._1, info._2, msg)
 
   }

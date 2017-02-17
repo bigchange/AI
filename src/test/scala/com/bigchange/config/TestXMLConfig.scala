@@ -3,18 +3,17 @@ package com.bigchange.config
 import org.scalatest.{FlatSpec, Matchers}
 
 /**
-  * Created by C.J.YOU on 2016/12/8.
-  * spark log output test
+  * Created by C.J.YOU on 2017/2/17.
   */
-class TestDom4jParser  extends FlatSpec with Matchers {
+class TestXMLConfig  extends FlatSpec with Matchers {
 
   "getAllParameter" should "work" in  {
 
-    val parser = Dom4jParser.apply("src/test/resources/config.xml")
+    val xmlConfig = Dom4jParser.apply("src/test/resources/config.xml")
 
     val t1 = System.currentTimeMillis()
 
-    val parameters = parser.getAllParameter
+    val parameters = xmlConfig.getAllParameter
 
     val t2 = System.currentTimeMillis()
 

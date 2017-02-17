@@ -82,7 +82,7 @@ class Dom4jParser (xmlFilePath:String) extends Parameter with CLogger  {
 
     val res = value match {
       case Success(v) => v
-      case Failure(ex) => errorLog(logFileInfo, msg = "tagName not exist!!")
+      case Failure(ex) => errorLog(msg = "tagName not exist!!")
     }
 
     res.asInstanceOf[String]
