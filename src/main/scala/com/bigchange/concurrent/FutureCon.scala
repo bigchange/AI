@@ -1,9 +1,11 @@
 package com.bigchange.concurrent
 
 import java.util.concurrent.Callable
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import akka.dispatch.Futures
 import com.bigchange.thread.ThreadPool
+import org.junit.Test
 
 /**
   * Created by C.J.YOU on 2017/1/19.
@@ -12,6 +14,7 @@ object FutureCon {
 
   var number = 0
 
+  @Test
   val isEven: PartialFunction[String, String] = {
     case x if x.toInt % 2 == 0 => x + " is even"
   }
