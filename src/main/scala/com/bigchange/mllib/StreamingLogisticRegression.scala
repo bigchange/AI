@@ -69,7 +69,7 @@ object StreamingLogisticRegression {
     // model.predictOnValues(testData.map(lp => (lp.label, lp.features))).print()
     model.predictOnValues(testData.map(lp => (lp.label, lp.features))).map(x => x._1 +"\t" +x._2).foreachRDD(rdd =>{
       val value = rdd.collect()
-      FileUtil.writeToFile("F:\\datatest\\ai\\StreamingLogisticRegression\\"+TimeUtil.getCurrentHour,value)
+      FileUtil.normalFileWriter("F:\\datatest\\ai\\StreamingLogisticRegression\\"+TimeUtil.getCurrentHour,value)
     })
     ssc.start()
     ssc.awaitTermination()

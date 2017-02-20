@@ -8,7 +8,7 @@ import scala.xml.XML
   * same to SXMLConfig
   */
 
-class XMLConfig(xmlFilePath:String) {
+class XMLConfig(xmlFilePath:String) extends  Dom4jParser(xmlFilePath:String) with  Parameter {
 
   private val xmlConfig = loadXml()
 
@@ -40,6 +40,9 @@ object XMLConfig {
 
     if (xmlHandle == null)
       xmlHandle = new XMLConfig(xmlFilePath)
+
+    xmlHandle.dom4jParser
+    xmlHandle.getAllParameter
 
     xmlHandle
 

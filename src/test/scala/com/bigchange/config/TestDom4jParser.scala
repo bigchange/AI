@@ -22,7 +22,7 @@ class TestDom4jParser  extends FlatSpec with Matchers {
 
     parameters.foreach(println)
 
-    parameters.size should be (12)
+    parameters.size should be (15)
 
   }
 

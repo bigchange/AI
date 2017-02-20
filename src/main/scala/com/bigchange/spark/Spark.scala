@@ -19,8 +19,17 @@ class Spark(master: String, appName:String, batchDuration: Int, checkpoint_dir:S
   // checkout point
   def createStreamingContext: () => StreamingContext = {
     val ssc = new StreamingContext(sparkConf, Seconds(60))
+
+    // NOTE: You have to create dstreams inside the method
+    // See http://stackoverflow.com/q/35090180/1305344
+
+    // data process procedure
+    // .....
+
     ssc.checkpoint(checkpoint_dir)
+
     () => ssc
+
   }
 
   // 2.0.2 使用SparkSession

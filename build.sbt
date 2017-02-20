@@ -61,6 +61,19 @@ libraryDependencies += "io.dropwizard.metrics" % "metrics-core" % "3.1.2"
 // https://mvnrepository.com/artifact/dom4j/dom4j
 libraryDependencies += "dom4j" % "dom4j" % "1.6.1"
 
+libraryDependencies += "org.graphstream" % "gs-core" % "1.1.2"
+
+// https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml
+libraryDependencies += "org.apache.poi" % "poi-ooxml" % "3.9"
+
+// https://mvnrepository.com/artifact/org.apache.poi/poi
+libraryDependencies += "org.apache.poi" % "poi" % "3.9"
+
+// https://mvnrepository.com/artifact/net.sourceforge.jexcelapi/jxl
+libraryDependencies += "net.sourceforge.jexcelapi" % "jxl" % "2.6.12"
+
+libraryDependencies += "com.typesafe.akka" % "akka-actor_2.11" % "2.4.9-RC2"
+
 
 // https://mvnrepository.com/artifact/org.deeplearning4j/dl4j-caffe
 // libraryDependencies += "org.deeplearning4j" % "dl4j-caffe" % "0.5.0"

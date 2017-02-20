@@ -1,4 +1,4 @@
-package usercase.log
+package com.usercase.log
 
 import com.bigchange.log.CLogger
 import com.bigchange.spark.Spark
@@ -27,7 +27,7 @@ object SparkLogOutputConfigTest extends CLogger{
         warn("this is warning log")
         info("this is info log")
         debug("this is debug log")
-        errorLog(logFileInfo, "this is errorLog")
+        errorLog("this is errorLog")
     }
 
 

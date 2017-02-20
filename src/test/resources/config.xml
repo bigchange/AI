@@ -20,4 +20,15 @@
         <zkQuorum>:2181</zkQuorum>
         <numThreads>1</numThreads>>
     </kafka>
+
+    <mysql>
+        <url>jdbc:mysql://xxxxx:3306/db?autoReconnect=true</url>
+        <user></user>
+        <password></password>
+        <driver>com.mysql.jdbc.Driver</driver>
+        <partition>4</partition>
+        <timeout>2000</timeout>
+        <minConn>4</minConn>
+        <maxConn>8</maxConn>>
+    </mysql>
 </xml>

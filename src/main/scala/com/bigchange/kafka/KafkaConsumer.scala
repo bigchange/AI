@@ -1,7 +1,7 @@
 package com.bigchange.kafka
 
 import com.bigchange.config.Parameter
-import com.bigchange.util.FileUtil
+import com.bigchange.util.{FileUtil}
 import kafka.serializer.StringDecoder
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
@@ -42,6 +42,7 @@ class KafkaConsumer(parameter: Parameter) {
     * 但是还没有来得及更新Zookeeper中Kafka偏移量，系统出现故障的情况下发生。
     * 这导致数据出现不一致性：Spark Streaming知道数据被接收，但是Kafka那边认为数据还没有被接收，
     * 这样在系统恢复正常时，Kafka会再一次发送这些数据
+ *
     * @param ssc  ssc
     * @param zkQuorum Zookeeper quorum (hostname:port,hostname:port,..)
     * @param groupId groupId
@@ -79,6 +80,7 @@ class KafkaConsumer(parameter: Parameter) {
     * 最后，每个batch的Job被运行，那些对应偏移量的数据在Kafka中已经准备好了。
     * 这些偏移量信息也被可靠地存储（checkpoint），
     * 在从失败中恢复可以直接读取这些偏移量信息。
+ *
     * @param ssc  ssc
     * @param brokers brokers
     * @param zkQuorum Zookeeper quorum (hostname:port,hostname:port,..)
@@ -119,6 +121,7 @@ class KafkaConsumer(parameter: Parameter) {
   /**
     * 记录消费的offset for DirectStreaming Api
     * 方便在Driver失败后，对比是否有数据没有消费到
+ *
     * @param rdd Streaming RDD
     */
   def dealWithOffset(rdd: RDD[(String, String)]) = {
@@ -127,7 +130,7 @@ class KafkaConsumer(parameter: Parameter) {
 
     val ts = System.currentTimeMillis()
 
-    val log = offSetRanges.map(x => ts + " =====> topic:"+ x.topic + "\t partition:" + x.partition + "\t fromOffset:" + x.fromOffset + "\t untilOffset:" + x.untilOffset)
+    val log = offSetRanges.map(x => ts + " =====> topic:"+ x.topic + "\t partition:" + x.partition + "\t fromOffset:" + x.fromOffset + "\t untilOffset:" + x.untilOffset )
 
     FileUtil.saveData(offsetLog, log)
 

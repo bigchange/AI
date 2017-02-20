@@ -1,4 +1,4 @@
-package usercase.log
+package com.usercase.log
 
 import com.bigchange.spark.Spark
 import com.bigchange.util.{FileUtil, TimeUtil}
@@ -97,7 +97,7 @@ object SparkStreamingLogAnalysis {
 
     data.foreach(println)
 
-    FileUtil.writeToFile(path = "app-20161227113905-5603.result", data.collect(), isAppend = true)
+    FileUtil.normalFileWriter(path = "app-20161227113905-5603.result", data.collect(), isAppend = true)
 
 
   }
