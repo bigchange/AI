@@ -1,4 +1,4 @@
-package usercase.telecom
+package com.usercase.telecom
 
 import java.io.File
 import java.sql.ResultSet

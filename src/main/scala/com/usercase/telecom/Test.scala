@@ -1,4 +1,4 @@
-package usercase.telecom
+package com.usercase.telecom
 
 /**
   * Created by C.J.YOU on 2016/12/15.

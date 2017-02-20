@@ -1,4 +1,4 @@
-package usercase.log
+package com.usercase.log
 
 import com.bigchange.log.CLogger
 import com.bigchange.spark.Spark

@@ -1,4 +1,4 @@
-package usercase.log
+package com.usercase.log
 
 import com.bigchange.spark.Spark
 import com.bigchange.util.{FileUtil, TimeUtil}

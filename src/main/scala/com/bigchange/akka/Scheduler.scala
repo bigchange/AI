@@ -20,7 +20,7 @@ object Scheduler {
     val system = ActorSystem("""sparkDriver""")
     val masterActor = system.actorOf(Props[MasterActor], name = "MasterActor")
 
-    masterActor.tell("lets do action",masterActor)  // 实现了通过反馈消息：得到计算是否结束，并打印出结果
+    masterActor.tell("lets do action", masterActor)  // 实现了通过反馈消息：得到计算是否结束，并打印出结果
 
     Thread.sleep(3000)  // 等待计算结束通知
 

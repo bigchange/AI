@@ -1,4 +1,4 @@
-package usercase.telecom
+package com.usercase.telecom
 
 import com.bigchange.config.Dom4jParser
 import com.bigchange.kafka.KafkaConsumer
