@@ -95,6 +95,8 @@ libraryDependencies += "org.nd4j" % "nd4j-jblas" % "0.4-rc3.6"
 // https://mvnrepository.com/artifact/org.datavec/datavec-api
 libraryDependencies += "org.datavec" % "datavec-api" % "0.6.0"
 
+unmanagedJars in compile += file(local_file_path)
+
 assemblyMergeStrategy in assembly := {
   case PathList("javax", "servlet", xs @ _*) => MergeStrategy.last
   case PathList("javax", "activation", xs @ _*) => MergeStrategy.last
