@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-history-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-history-server
+  template:
+    metadata:
+      labels:
+        app: spark-history-server
+    spec:
+      enableServiceLinks: false
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: spark-history-server
+                    operator: In
+                    values:
+                      - "true"
+      restartPolicy: Always
+      containers:
+        - name: spark-history-server
+          image: <your-spark-image-url>
+          ports:
+            - containerPort: 18080
+              name: history-server
+          command:
+            - /bin/bash
+          args:
+            - -c
+            - $SPARK_HOME/sbin/start-history-server.sh && tail -f /dev/null
+          resources:
+            limits:
+              cpu: "2"
+              memory: 4Gi
+            requests:
+              cpu: 100m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: spark-history-server-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: spark-history-server
+  ports:
+    - name: server
+      protocol: TCP
+      port: 18080
+      targetPort: history-server
