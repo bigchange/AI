@@ -1,10 +1,13 @@
-mainClass in (Compile, packageBin) := Some("com.bigchange.basic.DataFrameTest")
+// warning: method in in trait ScopingSetting is deprecated (since 1.5.0)
+// mainClass in (Compile, packageBin) := Some("com.bigchange.basic.DataFrameTest")
 
 name := "AI"
 
 version := "1.0"
 
 scalaVersion := "2.11.8"
+
+resolvers += "Aliyun Maven" at "https://maven.aliyun.com/repository/public"
 
 libraryDependencies += "org.scala-lang" % "scala-compiler" % "2.11.8" % "provided"
 
@@ -39,6 +42,8 @@ libraryDependencies += "org.apache.spark" % "spark-streaming_2.11" % "2.0.2"
 
 // https://mvnrepository.com/artifact/org.apache.spark/spark-streaming-kafka-0-8_2.11
 libraryDependencies += "org.apache.spark" % "spark-streaming-kafka-0-8_2.11" % "2.0.2"
+
+libraryDependencies += "org.apache.kafka" % "kafka_2.11" % "0.8.2.1"
 
 libraryDependencies += "redis.clients" % "jedis" % "2.8.0"
 
@@ -95,7 +100,7 @@ libraryDependencies += "org.nd4j" % "nd4j-jblas" % "0.4-rc3.6"
 // https://mvnrepository.com/artifact/org.datavec/datavec-api
 libraryDependencies += "org.datavec" % "datavec-api" % "0.6.0"
 
-unmanagedJars in compile += file(local_file_path)
+// unmanagedJars in compile += file(local_file_path)
 
 assemblyMergeStrategy in assembly := {
   case PathList("javax", "servlet", xs @ _*) => MergeStrategy.last
